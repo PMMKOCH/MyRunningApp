@@ -457,7 +457,7 @@ function icon(name, size = 18, opts = {}) {
 }
 
 // ─── Build-Version (manuell hochzählen bei Code-Push) ────────────────────
-const APP_VERSION = '2026-05-06-22:00';
+const APP_VERSION = '2026-05-06-22:30';
 
 // ─── State ───────────────────────────────────────────────────────────────
 let state = {
@@ -2083,7 +2083,7 @@ function renderTracker() {
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <div>
           <div style="font-size:20px;font-weight:600">${plan.name}</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px">${plan.goal}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-clamp:2" title="${(plan.goal||'').replace(/"/g,'&quot;')}">${plan.goal}</div>
           <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--faint);margin-top:4px">${planRange}</div>
           ${plan.coachReview ? `<button onclick="showCoachReview(state.plans.find(p=>p.id==='${plan.id}'))" style="margin-top:8px;display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:${plan.coachReview.overall>=7?'var(--green)':plan.coachReview.overall>=5?'var(--amber)':'var(--red)'};font-family:'DM Mono',monospace;font-size:11px;font-weight:700;cursor:pointer">Coach: ${plan.coachReview.overall}/10</button>` : `<button onclick="reviewPlanWithCoach(state.plans.find(p=>p.id==='${plan.id}'),this)" style="margin-top:8px;display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:6px;border:1px dashed var(--border2);background:transparent;color:var(--muted);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer">Coach-Review starten</button>`}
         </div>
@@ -2489,12 +2489,11 @@ VOR PLAN-AUSGABE: Selbst-Check (jeder Punkt wird sonst vom Reviewer abgestraft)
 
 function buildPlanPrompt(o) {
   const hasTargetPace = !!o.targetPaceSecPerKm;
+  // Kurz fürs JSON (User-sichtbar). Lange Erklärung kommt separat in den Constraints.
   const goalMap = {
-    reach:   'erstmals erreichen / sicher zurücklegen (aerobe Basis + Long-Run-Aufbau)',
-    comfort: hasTargetPace
-      ? 'routiniert in der Zielpace festigen (Plan trainiert auf Zielpace hin, aber moderat — KEIN Wettkampf-Modus, KEIN aggressives Tapering, 1 Tempo-Reiz/Woche in Zielpace)'
-      : 'routiniert und locker festigen (Volumen-Konsistenz, weniger Intensität)',
-    race:    'in Bestzeit laufen (Threshold + VO2max-Reize, klares Tapering, Race-Pace-Spitzen am Plan-Ende)'
+    reach:   'erstmals schaffen',
+    comfort: hasTargetPace ? 'in Zielpace festigen' : 'locker festigen',
+    race:    'in Bestzeit laufen'
   };
   const expMap = {
     beginner:    'Anfänger (unter 1 Jahr regelmäßiges Lauftraining) — vorsichtige Volumen-Steigerung, mehr Easy, KEINE 200m-Sprints, höchstens Strides',
@@ -3129,7 +3128,7 @@ showScreen(state.lastScreen || 'tracker');
 
 // Build-Version-Indikator (klein, oben links — damit du sofort siehst welche Version läuft)
 const verBadge = document.createElement('div');
-verBadge.style.cssText = 'position:fixed;top:14px;left:14px;z-index:90;font-family:DM Mono,monospace;font-size:11px;font-weight:700;color:#fff;background:#FF6900;padding:4px 10px;border-radius:6px;letter-spacing:0.05em;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,0.25)';
+verBadge.style.cssText = 'position:fixed;bottom:calc(var(--tab-h) + 4px);right:6px;z-index:90;font-family:DM Mono,monospace;font-size:8px;font-weight:600;color:var(--faint);background:transparent;padding:2px 5px;border-radius:3px;letter-spacing:0.04em;pointer-events:none;opacity:0.5';
 verBadge.textContent = 'v ' + APP_VERSION;
 document.body.appendChild(verBadge);
 </script>
