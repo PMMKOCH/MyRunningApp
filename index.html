@@ -457,7 +457,7 @@ function icon(name, size = 18, opts = {}) {
 }
 
 // ─── Build-Version (manuell hochzählen bei Code-Push) ────────────────────
-const APP_VERSION = '2026-05-04-19:30';
+const APP_VERSION = '2026-05-06-22:00';
 
 // ─── State ───────────────────────────────────────────────────────────────
 let state = {
@@ -561,6 +561,16 @@ function openHelpSheet() {
         <li><b>API-Key:</b> ebenfalls localStorage (verlässt nie das Gerät)</li>
         <li><b>Coach-Reviews/KI-Calls:</b> gehen direkt zu api.anthropic.com (Mac-Server sieht das nicht)</li>
       </ul>
+
+      <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin:14px 0 6px">Plan-Daten zwischen Geräten übertragen</div>
+      <p style="margin:0 0 8px;color:var(--muted);font-size:12px">
+        Pläne, Fortschritt und Feedback sind gerätelokal. Mit Export/Import übertragen:
+      </p>
+      <button class="generate-btn" style="margin-bottom:6px;background:var(--accent);color:#fff;border:none" onclick="exportPlanData()">Plan-Daten exportieren (Zwischenablage)</button>
+      <button class="generate-btn" style="margin-bottom:14px;background:var(--surface2);color:var(--text);border:1px solid var(--border2)" onclick="openImportDialog()">Plan-Daten importieren</button>
+      <p style="margin:0 0 16px;color:var(--faint);font-size:11px;line-height:1.4">
+        <b>Workflow:</b> Auf Gerät A → Export → JSON wird in Zwischenablage kopiert → per AirDrop/Notiz/Mail aufs Gerät B → dort App → Import → JSON einfügen → fertig.
+      </p>
 
       <button class="theme-close" onclick="closeHelpSheet()">Schließen</button>
     </div>`;
@@ -3037,6 +3047,55 @@ function toggleKeyVisibility() {
   const inp = document.getElementById('f-apikey');
   if (!inp) return;
   inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+// Plan-Export: alle Pläne + Done-Status als JSON in Zwischenablage
+async function exportPlanData() {
+  const exportObj = {
+    exportedAt: todayISO(),
+    appVersion: APP_VERSION,
+    plans: state.plans,
+    activePlanId: state.activePlanId,
+    currentWeek: state.currentWeek,
+    done: state.done,
+    donePace: state.donePace,
+    feedback: state.feedback,
+    coachDismiss: state.coachDismiss
+  };
+  const json = JSON.stringify(exportObj);
+  try {
+    await navigator.clipboard.writeText(json);
+    alert(`Daten in Zwischenablage kopiert (${state.plans.length} Plan${state.plans.length!==1?'e':''}).\n\nAuf anderem Gerät:\n1. App öffnen\n2. Hilfe-Sheet öffnen\n3. „Plan-Daten importieren" tippen\n4. JSON aus Zwischenablage einfügen`);
+  } catch(e) {
+    prompt('JSON manuell kopieren:', json);
+  }
+}
+
+function openImportDialog() {
+  const json = prompt('JSON-Daten vom anderen Gerät hier einfügen:');
+  if (!json) return;
+  try {
+    const data = JSON.parse(json);
+    if (!data.plans || !Array.isArray(data.plans)) throw new Error('Ungültige Daten — kein Plans-Array');
+    const planCount = data.plans.length;
+    if (!confirm(`Import enthält ${planCount} Plan${planCount!==1?'e':''}. Deine aktuellen lokalen Pläne werden ÜBERSCHRIEBEN. Fortfahren?`)) return;
+    const oldKey = state.apiKey;
+    const oldTheme = state.theme;
+    state.plans = data.plans;
+    state.activePlanId = data.activePlanId;
+    state.currentWeek = data.currentWeek || {};
+    state.done = data.done || {};
+    state.donePace = data.donePace || {};
+    state.feedback = data.feedback || {};
+    state.coachDismiss = data.coachDismiss || {};
+    state.apiKey = oldKey;
+    state.theme = oldTheme;
+    save();
+    alert(`${planCount} Plan${planCount!==1?'e':''} importiert. App lädt neu.`);
+    location.reload();
+  } catch(e) {
+    alert('Import fehlgeschlagen: ' + e.message);
+  }
 }
 
 async function copyKeyToClipboard() {
