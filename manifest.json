@@ -2,7 +2,7 @@
   "name": "Laufplan",
   "short_name": "Laufplan",
   "description": "Trainingsplan-Tracker mit KI-gestützter Plangenerierung",
-  "start_url": "./laufplan_app.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

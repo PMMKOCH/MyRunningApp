@@ -1,5 +1,5 @@
 // Laufplan Service Worker — Offline-Cache + Live-Updates für lokalen Mac-Server
-const CACHE = 'laufplan-v4';
+const CACHE = 'laufplan-v5';
 const ASSETS = [
   './manifest.json',
   './icon.svg',
@@ -39,7 +39,7 @@ self.addEventListener('fetch', e => {
           caches.open(CACHE).then(c => c.put(e.request, clone));
         }
         return res;
-      }).catch(() => caches.match(e.request).then(c => c || caches.match('./laufplan_app.html')))
+      }).catch(() => caches.match(e.request).then(c => c || caches.match('./index.html')))
     );
     return;
   }
@@ -68,6 +68,6 @@ self.addEventListener('fetch', e => {
         caches.open(CACHE).then(c => c.put(e.request, clone));
       }
       return res;
-    }).catch(() => caches.match('./laufplan_app.html')))
+    }).catch(() => caches.match('./index.html')))
   );
 });
