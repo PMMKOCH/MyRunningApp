@@ -457,7 +457,7 @@ function icon(name, size = 18, opts = {}) {
 }
 
 // ─── Build-Version (manuell hochzählen bei Code-Push) ────────────────────
-const APP_VERSION = '2026-05-06-22:30';
+const APP_VERSION = '2026-05-06-22:45';
 
 // ─── State ───────────────────────────────────────────────────────────────
 let state = {
@@ -3128,7 +3128,7 @@ showScreen(state.lastScreen || 'tracker');
 
 // Build-Version-Indikator (klein, oben links — damit du sofort siehst welche Version läuft)
 const verBadge = document.createElement('div');
-verBadge.style.cssText = 'position:fixed;bottom:calc(var(--tab-h) + 4px);right:6px;z-index:90;font-family:DM Mono,monospace;font-size:8px;font-weight:600;color:var(--faint);background:transparent;padding:2px 5px;border-radius:3px;letter-spacing:0.04em;pointer-events:none;opacity:0.5';
+verBadge.style.cssText = 'position:fixed;bottom:calc(var(--tab-h) + 6px);right:8px;z-index:90;font-family:DM Mono,monospace;font-size:9px;font-weight:600;color:var(--muted);background:var(--surface2);padding:3px 7px;border-radius:4px;letter-spacing:0.04em;pointer-events:none;opacity:0.85;border:1px solid var(--border)';
 verBadge.textContent = 'v ' + APP_VERSION;
 document.body.appendChild(verBadge);
 </script>
