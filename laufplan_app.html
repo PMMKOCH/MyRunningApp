@@ -1,0 +1,3078 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Laufplan">
+<meta name="theme-color" content="#0e0e10">
+<title>Laufplan App</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* All for One Brand-Tokens (aligned mit Portfolio APP Style-Guide) */
+  --afo-orange-600:#FF6900;
+  --afo-orange-500:#F26B43;
+  --afo-red:#EF3E5E;
+  --afo-purple-light:#7300C4;
+  --afo-purple:#520D91;
+  --afo-purple-dark:#420B73;
+
+  /* Spacing-Skala (gleiche Token-Namen wie Style-Guide, kompakter für Mobile) */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:14px; --sp-5:18px; --sp-6:24px; --sp-7:32px;
+
+  /* Status-Farben (vom Style-Guide, plattformneutral) */
+  --c-ok:#0E7C4D;
+  --c-warn:#B45309;
+  --c-danger:#B91C1C;
+  --c-info:#1D4ED8;
+
+  /* Theme — Dunkel (Default) */
+  --bg:#0e0e10;--surface:#1a1a1e;--surface2:#242428;--surface3:#2e2e33;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.12);
+  --text:#f0f0f0;--muted:#888;--faint:#444;
+  --accent:#4f8ef7;--accent-soft:rgba(79,142,247,0.15);
+  --green:#3ecf8e;--amber:#f5a623;--purple:#a78bfa;--red:#f87171;--coral:#fb923c;
+  --header-bg:rgba(14,14,16,0.92);--tabs-bg:rgba(14,14,16,0.94);
+  --tab-h:72px;
+}
+body[data-theme="hell"]{
+  --bg:#f5f5f5;--surface:#ffffff;--surface2:#eef0f3;--surface3:#e3e6eb;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
+  --text:#1a1a1a;--muted:#6b7280;--faint:#a3a8b3;
+  --accent:var(--afo-orange-600);--accent-soft:rgba(255,105,0,0.12);
+  --green:var(--c-ok);--amber:var(--c-warn);--purple:var(--afo-purple);--red:var(--c-danger);--coral:#ea580c;
+  --header-bg:rgba(245,245,245,0.95);--tabs-bg:rgba(245,245,245,0.97);
+}
+/* Theme „all41" — entspricht Portfolio APP Style-Guide-Look (Light, Lila-Akzent + Orange) */
+body[data-theme="all41"]{
+  --bg:#FAFAFB;
+  --surface:#FFFFFF;
+  --surface2:#F4EFFA;
+  --surface3:#E8DCF5;
+  --border:#E5E5EA;
+  --border2:#DDD6FE;
+  --text:#1F1F23;
+  --muted:#6B6B73;
+  --faint:#A0A0AB;
+  --accent:var(--afo-orange-600);
+  --accent-soft:rgba(255,105,0,0.10);
+  --green:var(--c-ok);
+  --amber:var(--c-warn);
+  --purple:var(--afo-purple);
+  --red:var(--afo-red);
+  --coral:var(--afo-orange-500);
+  --header-bg:linear-gradient(135deg,rgba(82,13,145,0.06),rgba(250,250,251,0.96));
+  --tabs-bg:rgba(255,255,255,0.96);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+
+/* Screens */
+.screen{display:none;flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:var(--tab-h)}
+.screen.active{display:block}
+
+/* Bottom tabs */
+.tabs{position:fixed;bottom:0;left:0;right:0;height:var(--tab-h);background:var(--tabs-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;border:none;background:none;font-family:inherit;color:var(--faint);transition:color 0.15s;padding-bottom:2px}
+.tab.active{color:var(--accent)}
+.tab-icon{display:flex;align-items:center;justify-content:center;line-height:0}
+.tab-label{font-size:10px;font-weight:500;letter-spacing:0.03em}
+
+/* Header */
+.page-header{padding:52px 152px 16px 20px;position:sticky;top:0;background:var(--header-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:10}
+.page-title{font-size:22px;font-weight:600}
+.page-subtitle{font-size:13px;color:var(--muted);margin-top:2px}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.section{padding:0 16px;margin-bottom:12px}
+
+/* Progress */
+.progress-card{margin:0 16px 12px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:16px}
+.progress-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.progress-plan-name{font-size:15px;font-weight:500}
+.progress-pct{font-family:'DM Mono',monospace;font-size:13px;color:var(--green)}
+.progress-track{height:4px;background:var(--surface2);border-radius:2px}
+.progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width 0.4s}
+.progress-sub{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--muted)}
+
+/* Week tabs */
+.week-scroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 16px 2px}
+.week-scroll::-webkit-scrollbar{display:none}
+.week-tab{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all 0.15s;position:relative}
+.week-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.week-tab.complete{border-color:var(--green);color:var(--green)}
+.wk-dot{width:5px;height:5px;border-radius:50%;background:var(--green);position:absolute;top:3px;right:3px}
+
+/* Pace / Goal card */
+.pace-card{margin:10px 16px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;display:flex;align-items:center;gap:14px}
+.pace-goal{flex:1;min-width:0}
+.pace-goal-lbl{font-size:10px;font-weight:600;color:var(--faint);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:3px}
+.pace-goal-val{font-family:'DM Mono',monospace;font-size:17px;font-weight:600;color:var(--green);line-height:1.1}
+.pace-goal-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px}
+.pace-ctrl{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.pace-ctrl-lbl{font-size:10px;font-weight:600;color:var(--faint);letter-spacing:0.08em;text-transform:uppercase}
+.pace-ctrl-row{display:flex;gap:0;background:var(--surface2);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.pace-ctrl-btn{padding:6px 10px;border:none;background:transparent;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;font-weight:600;cursor:pointer;min-width:38px}
+.pace-ctrl-btn+.pace-ctrl-btn{border-left:1px solid var(--border)}
+.pace-ctrl-btn:active{background:var(--surface3)}
+.pace-ctrl-val{padding:6px 10px;font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--accent);min-width:46px;text-align:center;background:rgba(79,142,247,0.1)}
+.pace-bake{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:transparent;border:1px dashed var(--accent);color:var(--accent);font-family:inherit;font-size:10px;font-weight:600;border-radius:6px;cursor:pointer;letter-spacing:0.02em}
+.pace-bake:active{background:var(--accent-soft)}
+body[data-theme="hell"] .pace-ctrl-val,
+body[data-theme="all41"] .pace-ctrl-val{background:rgba(255,105,0,0.12)}
+
+/* Feedback nach Abhaken */
+.fb-row{display:flex;gap:6px;margin-top:8px;align-items:center}
+.fb-lbl{font-size:10px;color:var(--faint);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;margin-right:2px}
+.fb-pill{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:inherit;font-size:11px;font-weight:500;cursor:pointer}
+.fb-pill:active{transform:scale(0.95)}
+.fb-pill.act-easy.on{background:rgba(62,207,142,0.15);border-color:var(--green);color:var(--green)}
+.fb-pill.act-ok.on{background:rgba(79,142,247,0.15);border-color:var(--accent);color:var(--accent)}
+.fb-pill.act-hard.on{background:rgba(248,113,113,0.15);border-color:var(--red);color:var(--red)}
+
+/* Coach Banner */
+.coach{margin:0 16px 10px;padding:14px;border-radius:14px;background:linear-gradient(135deg,rgba(79,142,247,0.10),rgba(167,139,250,0.10));border:1px solid rgba(79,142,247,0.25)}
+body[data-theme="hell"] .coach{background:linear-gradient(135deg,rgba(255,105,0,0.10),rgba(239,62,94,0.10));border-color:rgba(255,105,0,0.30)}
+body[data-theme="all41"] .coach{background:linear-gradient(135deg,rgba(82,13,145,0.07),rgba(255,105,0,0.06));border-color:rgba(82,13,145,0.18)}
+.coach-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.coach-tag{font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--accent);text-transform:uppercase}
+.coach-title{font-size:14px;font-weight:600;line-height:1.3;margin-bottom:4px}
+.coach-text{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:10px}
+.coach-actions{display:flex;gap:8px}
+.coach-btn{flex:1;padding:8px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--text);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.coach-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.coach-btn:disabled{opacity:0.5;cursor:wait}
+
+/* Week summary */
+.week-summary{display:flex;margin:10px 16px;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.wsm-item{flex:1;padding:10px 0;text-align:center}
+.wsm-item+.wsm-item{border-left:1px solid var(--border)}
+.wsm-num{font-size:20px;font-weight:600;font-family:'DM Mono',monospace}
+.wsm-label{font-size:10px;color:var(--muted);margin-top:2px}
+
+/* Day cards */
+.days{padding:0 16px;display:flex;flex-direction:column;gap:8px;padding-bottom:8px}
+.day-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color 0.2s,background 0.2s}
+.day-card.done{background:rgba(62,207,142,0.07);border-color:rgba(62,207,142,0.25)}
+.day-card.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.day-card.today .day-title::before{content:'HEUTE';font-family:'DM Mono',monospace;font-size:9px;font-weight:600;color:var(--accent);background:rgba(79,142,247,0.15);padding:2px 6px;border-radius:4px;margin-right:6px;letter-spacing:0.05em;vertical-align:1px}
+.day-card.rest{opacity:0.4;pointer-events:none}
+.day-card.rest.today{opacity:0.7;pointer-events:auto}
+.day-main{padding:12px 14px;display:flex;align-items:flex-start;gap:12px;cursor:pointer}
+.check{width:24px;height:24px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.done .check{background:var(--green);border-color:var(--green)}
+.check-icon{display:none}
+.done .check-icon{display:block}
+.day-body{flex:1;min-width:0}
+.badge-row{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:5px;letter-spacing:0.04em}
+.b-intervall{background:rgba(167,139,250,0.15);color:var(--purple)}
+.b-tempo{background:rgba(245,166,35,0.15);color:var(--amber)}
+.b-easy{background:rgba(62,207,142,0.12);color:var(--green)}
+.b-lang{background:rgba(79,142,247,0.15);color:var(--accent)}
+.b-rest{background:rgba(255,255,255,0.05);color:var(--faint)}
+.day-title{font-size:14px;font-weight:500;line-height:1.3}
+.done .day-title{text-decoration:line-through;color:var(--muted)}
+.pace-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+.pace-chip{font-family:'DM Mono',monospace;font-size:10px;padding:2px 7px;border-radius:5px;background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+.phase-row{display:flex;gap:5px;margin-top:8px}
+.phase-box{flex:1;border-radius:8px;padding:7px 6px}
+.ph1{background:rgba(62,207,142,0.1);color:var(--green)}
+.ph2{background:rgba(79,142,247,0.1);color:var(--accent)}
+.ph3{background:rgba(167,139,250,0.1);color:var(--purple)}
+.phase-spd{font-family:'DM Mono',monospace;font-size:12px;font-weight:500}
+.phase-km{font-size:10px;margin-top:1px}
+.phase-lbl{font-size:9px;opacity:0.7;margin-top:1px}
+/* Laufband-Tabelle */
+.pace-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px;table-layout:auto}
+.pace-table th{font-size:9px;font-weight:700;color:var(--faint);letter-spacing:0.06em;text-transform:uppercase;padding:5px 6px;text-align:left;border-bottom:1px solid var(--border);font-family:inherit}
+.pace-table th.pt-r{text-align:right}
+.pace-table tbody tr{border-bottom:1px solid var(--border)}
+.pace-table tbody tr:last-child{border-bottom:none}
+.pace-table td{padding:6px 6px;font-family:'DM Mono',monospace;font-size:12px;line-height:1.2}
+.pace-table .pt-dist{color:var(--text)}
+.pace-table .pt-kmh{text-align:right;color:var(--accent);font-weight:600}
+.pace-table .pt-inc{text-align:right;color:var(--muted);font-size:11px}
+.pace-table .pt-time{text-align:right;color:var(--muted)}
+.pace-table .pt-mini{font-size:9px;opacity:0.6}
+.pace-table tr.pt-pause td{color:var(--faint);font-style:italic}
+.pace-table tr.pt-pause .pt-kmh{color:var(--faint);font-weight:500}
+.pace-table .pt-fallback{padding:6px;color:var(--muted);font-size:11px}
+.pace-table tr.pt-total td{padding-top:8px;border-top:1px solid var(--border);color:var(--text);font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;font-family:inherit}
+.pace-table tr.pt-total .pt-time{font-family:'DM Mono',monospace;color:var(--accent);font-size:13px}
+.pace-table tr.pt-total{border-bottom:none}
+
+.kinomap-box{margin:0 14px 12px;padding:10px 12px;border-radius:10px;background:rgba(79,142,247,0.06);border:1px solid rgba(79,142,247,0.2)}
+.kino-head{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.kino-tag{font-size:10px;font-weight:600;color:var(--accent);letter-spacing:0.05em;text-transform:uppercase}
+.kino-city{font-size:14px;font-weight:500;margin-bottom:3px}
+.kino-search{font-family:'DM Mono',monospace;font-size:11px;background:var(--surface2);padding:3px 8px;border-radius:5px;display:inline-block;color:var(--muted)}
+.kino-tip{font-size:11px;color:var(--muted);margin-top:5px}
+
+/* Week header in tracker */
+.wk-header{padding:10px 16px 6px}
+.wk-title{font-size:18px;font-weight:600}
+.wk-focus{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* Plans list */
+.plan-item{position:relative;margin:0 16px 10px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:14px;cursor:pointer;transition:all 0.2s;opacity:0.78}
+.plan-item:not(.active-plan):hover{opacity:1}
+.plan-item.active-plan{opacity:1;border:2px solid var(--accent);background:linear-gradient(135deg,rgba(79,142,247,0.08),rgba(79,142,247,0.02));box-shadow:0 4px 16px rgba(79,142,247,0.15);padding-left:20px}
+body[data-theme="hell"] .plan-item.active-plan{background:linear-gradient(135deg,rgba(255,105,0,0.10),rgba(255,105,0,0.02));box-shadow:0 4px 16px rgba(255,105,0,0.18)}
+body[data-theme="all41"] .plan-item.active-plan{background:linear-gradient(135deg,rgba(82,13,145,0.06),rgba(255,105,0,0.04));box-shadow:0 4px 20px rgba(82,13,145,0.12);border-color:var(--afo-orange-600)}
+.plan-item.active-plan::before{content:'';position:absolute;left:-1px;top:8px;bottom:8px;width:5px;border-radius:3px;background:var(--accent)}
+.plan-item-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:10px}
+.plan-item-name{font-size:15px;font-weight:500}
+.active-plan .plan-item-name{font-size:17px;font-weight:600}
+.plan-active-badge{flex-shrink:0;display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;background:var(--accent);color:#fff;letter-spacing:0.06em;text-transform:uppercase}
+.plan-active-badge::before{content:'●';font-size:10px;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.plan-item-meta{font-size:12px;color:var(--muted)}
+.plan-progress-track{height:3px;background:var(--surface2);border-radius:2px;margin-top:8px}
+.plan-progress-fill{height:100%;background:var(--green);border-radius:2px}
+.plan-actions{display:flex;gap:8px;margin-top:10px}
+.plan-btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:7px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text);font-family:inherit;font-size:13px;cursor:pointer}
+.plan-btn.primary-btn{background:var(--accent);border-color:var(--accent);color:#fff}
+.plan-btn.danger-btn{color:var(--red);border-color:rgba(248,113,113,0.3)}
+
+/* Legend */
+.legend-card{margin:16px 16px 0;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px}
+.legend-title{font-size:10px;font-weight:600;color:var(--faint);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px}
+.legend-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.legend-item{display:flex;align-items:center;gap:7px}
+.legend-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.legend-txt{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)}
+
+/* Time-Input (mm:ss nebeneinander) */
+.time-input{display:flex;align-items:stretch;gap:6px}
+.time-input .form-input{flex:1;min-width:0;text-align:center;padding-left:8px;padding-right:8px;font-family:'DM Mono',monospace;font-size:15px;font-weight:500}
+.time-sep{display:flex;align-items:center;font-family:'DM Mono',monospace;font-size:18px;font-weight:600;color:var(--muted);padding:0 2px}
+
+/* Form Hilfetext */
+.pe-help{font-size:11px;color:var(--muted);line-height:1.45;margin-top:6px;padding:6px 8px;background:var(--surface2);border-left:2px solid var(--border2);border-radius:4px}
+
+/* Form sections + weekday pills */
+.form-section-title{font-size:10px;font-weight:700;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin:18px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.wd-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.wd-pill{position:relative;cursor:pointer;background:var(--surface);border:1px solid var(--border2);border-radius:9px;padding:8px 0;text-align:center;font-size:12px;font-weight:600;color:var(--muted);transition:all 0.12s}
+.wd-pill input{position:absolute;opacity:0;pointer-events:none}
+.wd-pill:has(input:checked){background:var(--accent);border-color:var(--accent);color:#fff}
+.wd-pill:hover{border-color:var(--accent)}
+
+/* Create screen */
+.create-form{padding:0 16px}
+.form-group{margin-bottom:16px}
+.form-label{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;display:block}
+.form-input,.form-select,.form-textarea{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:inherit;font-size:14px;padding:12px 14px;appearance:none;-webkit-appearance:none}
+.form-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.form-textarea{height:80px;resize:none}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.generate-btn{width:100%;padding:14px;border-radius:12px;background:var(--accent);border:none;color:#fff;font-family:inherit;font-size:16px;font-weight:600;cursor:pointer;transition:opacity 0.2s;margin-top:4px}
+.generate-btn:disabled{opacity:0.5}
+.api-note{font-size:11px;color:var(--faint);text-align:center;margin-top:8px;line-height:1.5}
+.generating-state{text-align:center;padding:40px 20px}
+.generating-spinner{width:40px;height:40px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.generating-text{font-size:15px;color:var(--muted)}
+.generating-sub{font-size:12px;color:var(--faint);margin-top:6px}
+.error-box{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--red);margin-bottom:16px}
+
+/* API Key screen */
+.api-screen{padding:20px}
+.api-icon{font-size:48px;text-align:center;margin:20px 0 8px}
+.api-title{font-size:20px;font-weight:600;text-align:center;margin-bottom:8px}
+.api-desc{font-size:13px;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:24px}
+.api-link{color:var(--accent);text-decoration:none}
+.api-input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:12px 14px;margin-bottom:12px}
+.api-btn{width:100%;padding:13px;border-radius:10px;background:var(--accent);border:none;color:#fff;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer}
+.api-skip{width:100%;padding:10px;border-radius:10px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:inherit;font-size:14px;cursor:pointer;margin-top:8px}
+
+/* Empty state */
+.empty{text-align:center;padding:60px 30px;color:var(--muted)}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-text{font-size:15px;font-weight:500;margin-bottom:6px;color:var(--text)}
+.empty-sub{font-size:13px;color:var(--muted)}
+
+/* Theme picker */
+.theme-btn{position:fixed;top:54px;right:14px;width:38px;height:38px;border-radius:19px;background:var(--surface);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:50;color:var(--text);font-size:16px;-webkit-appearance:none;appearance:none;font-family:inherit}
+.theme-btn:active{transform:scale(0.94)}
+.reload-btn{position:fixed;top:54px;right:60px;width:38px;height:38px;border-radius:19px;background:var(--surface);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:50;color:var(--text);font-size:16px;-webkit-appearance:none;appearance:none;font-family:inherit}
+.reload-btn:active{transform:scale(0.94)}
+.reload-btn.spinning svg{animation:spin 0.6s linear}
+.help-btn{position:fixed;top:54px;right:106px;width:38px;height:38px;border-radius:19px;background:var(--surface);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:50;color:var(--text);font-size:16px;-webkit-appearance:none;appearance:none;font-family:inherit}
+.help-btn:active{transform:scale(0.94)}
+.theme-sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.theme-sheet-bg.open{display:flex}
+.theme-sheet{width:100%;max-width:520px;background:var(--surface);border-top-left-radius:20px;border-top-right-radius:20px;padding:18px 16px calc(20px + env(safe-area-inset-bottom));border-top:1px solid var(--border)}
+.theme-sheet-title{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px;text-align:center}
+.theme-options{display:flex;flex-direction:column;gap:10px}
+.theme-option{display:flex;align-items:center;gap:14px;padding:12px;border:1px solid var(--border);border-radius:12px;background:transparent;color:var(--text);font-family:inherit;cursor:pointer;text-align:left;width:100%}
+.theme-option.active{border-color:var(--accent);background:var(--surface2)}
+.theme-swatch{width:44px;height:44px;border-radius:10px;flex-shrink:0;display:flex;overflow:hidden;border:1px solid var(--border)}
+.theme-swatch span{flex:1}
+.theme-option-text{flex:1}
+.theme-option-name{font-size:15px;font-weight:500}
+.theme-option-desc{font-size:11px;color:var(--muted);margin-top:2px}
+.theme-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.theme-option.active .theme-check{background:var(--accent);border-color:var(--accent)}
+.theme-option.active .theme-check::after{content:'';width:10px;height:6px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg);margin-top:-2px}
+.theme-close{margin-top:14px;width:100%;padding:12px;border-radius:12px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:inherit;font-size:14px;cursor:pointer}
+
+/* No plan state */
+.no-plan{text-align:center;padding:80px 30px}
+.no-plan-icon{font-size:48px;margin-bottom:16px}
+.no-plan-text{font-size:18px;font-weight:600;margin-bottom:8px}
+.no-plan-sub{font-size:14px;color:var(--muted);margin-bottom:24px}
+.no-plan-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:var(--accent);border-radius:12px;color:#fff;font-weight:600;font-size:15px;cursor:pointer;border:none;font-family:inherit}
+</style>
+</head>
+<body>
+
+<!-- Screen: Tracker -->
+<div class="screen active" id="screen-tracker">
+  <div id="tracker-content"></div>
+</div>
+
+<!-- Screen: Plans -->
+<div class="screen" id="screen-plans">
+  <div class="page-header">
+    <div class="page-title">Meine Pläne</div>
+    <div class="page-subtitle" id="plans-subtitle"></div>
+  </div>
+  <div id="plans-list"></div>
+</div>
+
+<!-- Screen: Create -->
+<div class="screen" id="screen-create">
+  <div class="page-header">
+    <div class="page-title">Neuer Plan</div>
+    <div class="page-subtitle">KI erstellt deinen Trainingsplan</div>
+  </div>
+  <div id="create-content"></div>
+</div>
+
+<!-- Hilfe -->
+<button class="help-btn" onclick="openHelpSheet()" aria-label="Hilfe">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+    <line x1="12" y1="17" x2="12.01" y2="17"/>
+  </svg>
+</button>
+
+<!-- Reload -->
+<button class="reload-btn" onclick="doReload(this)" aria-label="App neu laden">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="23 4 23 10 17 10"/>
+    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+  </svg>
+</button>
+
+<!-- Theme Picker -->
+<button class="theme-btn" onclick="openThemeSheet()" aria-label="Theme wählen">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="9"/>
+    <path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/>
+  </svg>
+</button>
+
+<div class="theme-sheet-bg" id="theme-sheet-bg" onclick="if(event.target===this)closeThemeSheet()">
+  <div class="theme-sheet">
+    <div class="theme-sheet-title">Theme wählen</div>
+    <div class="theme-options" id="theme-options"></div>
+    <button class="theme-close" onclick="closeThemeSheet()">Schließen</button>
+  </div>
+</div>
+
+<!-- Plan Edit Sheet -->
+<div class="theme-sheet-bg" id="planedit-bg" onclick="if(event.target===this)closePlanEdit()">
+  <div class="theme-sheet" style="max-height:85vh;overflow-y:auto">
+    <div class="theme-sheet-title">Plan bearbeiten</div>
+    <div id="planedit-body"></div>
+  </div>
+</div>
+
+<!-- Hilfe Sheet -->
+<div class="theme-sheet-bg" id="help-bg" onclick="if(event.target===this)closeHelpSheet()">
+  <div class="theme-sheet" style="max-height:85vh;overflow-y:auto">
+    <div class="theme-sheet-title">Hilfe & Updates</div>
+    <div id="help-body"></div>
+  </div>
+</div>
+
+<!-- Bottom Tabs -->
+<div class="tabs">
+  <button class="tab active" onclick="showScreen('tracker')" id="tab-tracker">
+    <div class="tab-icon" id="tab-icon-tracker"></div>
+    <div class="tab-label">Aktiv</div>
+  </button>
+  <button class="tab" onclick="showScreen('plans')" id="tab-plans">
+    <div class="tab-icon" id="tab-icon-plans"></div>
+    <div class="tab-label">Pläne</div>
+  </button>
+  <button class="tab" onclick="showScreen('create')" id="tab-create">
+    <div class="tab-icon" id="tab-icon-create"></div>
+    <div class="tab-label">Erstellen</div>
+  </button>
+</div>
+
+<script>
+// ─── Icons (Lucide-style line icons, einheitlicher Stil) ─────────────────
+const ICONS = {
+  activity:  '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+  list:      '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>',
+  sparkles:  '<path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"/>',
+  refresh:   '<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>',
+  rotateCcw: '<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>',
+  play:      '<polygon points="5 3 19 12 5 21 5 3"/>',
+  smile:     '<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>',
+  check:     '<polyline points="20 6 9 17 4 12"/>',
+  flame:     '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+  target:    '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+  trophy:    '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/>',
+  edit:      '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>',
+  trash:     '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>',
+  power:     '<path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/>',
+  emptyList: '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>',
+  user:      '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  zap:       '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+  coffee:    '<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>',
+  trendingUp:'<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>',
+  alertTriangle:'<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'
+};
+function icon(name, size = 18, opts = {}) {
+  const path = ICONS[name];
+  if (!path) return '';
+  const sw = opts.strokeWidth ?? 2;
+  const cls = opts.className ? ` class="${opts.className}"` : '';
+  const style = opts.style ? ` style="${opts.style}"` : '';
+  return `<svg${cls}${style} width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
+}
+
+// ─── Build-Version (manuell hochzählen bei Code-Push) ────────────────────
+const APP_VERSION = '2026-05-04-19:30';
+
+// ─── State ───────────────────────────────────────────────────────────────
+let state = {
+  plans: [],
+  activePlanId: null,
+  done: {},
+  donePace: {},      // key → paceFactor zum Zeitpunkt des Abhakens
+  feedback: {},      // key → 'easy' | 'ok' | 'hard'
+  coachDismiss: {},  // planId-suggestionId → true (User hat Vorschlag ignoriert)
+  currentWeek: {},
+  apiKey: '',
+  theme: 'dunkel'
+};
+
+// ─── Themes ──────────────────────────────────────────────────────────────
+const THEMES = [
+  { id:'dunkel', name:'Dunkel', desc:'Klassisches Dark-Theme, Blau-Akzent', swatch:['#0e0e10','#1a1a1e','#4f8ef7'] },
+  { id:'hell',   name:'Hell',   desc:'Helles Theme, Orange-Akzent',         swatch:['#f5f5f5','#ffffff','#FF6900'] },
+  { id:'all41',  name:'All for One', desc:'Style-Guide-Look: Light · Lila · Orange', swatch:['#FAFAFB','#F4EFFA','#FF6900'] }
+];
+
+function applyTheme(id) {
+  document.body.dataset.theme = id;
+  state.theme = id;
+  save();
+  // Status-Bar-Farbe anpassen (iOS Standalone)
+  const meta = document.querySelector('meta[name=theme-color]');
+  if (meta) {
+    const colors = { dunkel:'#0e0e10', hell:'#f5f5f5', all41:'#FAFAFB' };
+    meta.setAttribute('content', colors[id] || '#0e0e10');
+  }
+}
+
+function openThemeSheet() {
+  const list = document.getElementById('theme-options');
+  list.innerHTML = THEMES.map(t => `
+    <button class="theme-option ${t.id===state.theme?'active':''}" onclick="applyTheme('${t.id}');openThemeSheet()">
+      <div class="theme-swatch">
+        ${t.swatch.map(c=>`<span style="background:${c}"></span>`).join('')}
+      </div>
+      <div class="theme-option-text">
+        <div class="theme-option-name">${t.name}</div>
+        <div class="theme-option-desc">${t.desc}</div>
+      </div>
+      <div class="theme-check"></div>
+    </button>
+  `).join('');
+  document.getElementById('theme-sheet-bg').classList.add('open');
+}
+
+function closeThemeSheet() {
+  document.getElementById('theme-sheet-bg').classList.remove('open');
+}
+
+function closeHelpSheet() {
+  document.getElementById('help-bg').classList.remove('open');
+}
+
+function openHelpSheet() {
+  document.getElementById('help-body').innerHTML = `
+    <div style="font-size:13px;line-height:1.6;color:var(--text)">
+
+      <div style="padding:10px 12px;background:var(--accent-soft);border-radius:8px;margin-bottom:18px;font-size:12px;color:var(--text)">
+        <b>Setup:</b> Lokaler Server auf Mac · iPhone im selben WLAN · App als PWA auf iPhone installiert
+      </div>
+
+      <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin:0 0 6px">Code-Update auf das iPhone bringen</div>
+      <ol style="padding-left:20px;margin:0 0 16px;color:var(--muted)">
+        <li>Auf <b>Mac</b>: Datei <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">laufplan_app.html</code> ändern und speichern</li>
+        <li>Mac-Server muss <b>laufen</b> (<code style="background:var(--surface2);padding:1px 5px;border-radius:3px">Server starten.command</code> doppelklicken falls nicht aktiv)</li>
+        <li>Auf <b>iPhone</b>: App öffnen → oben rechts <b>Reload-Button</b> (Pfeil-Icon) drücken</li>
+        <li>Service Worker holt das aktualisierte HTML vom Mac, alter Cache wird gelöscht</li>
+        <li>App lädt mit neuer Version</li>
+      </ol>
+
+      <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin:14px 0 6px">Wenn das Update nicht ankommt</div>
+      <ul style="padding-left:20px;margin:0 0 16px;color:var(--muted)">
+        <li>Mac-Server prüfen: läuft das Terminal-Fenster noch? Wenn versehentlich geschlossen → wieder starten</li>
+        <li>Mac und iPhone im <b>selben WLAN</b>? IP-Adresse hat sich nicht geändert? (Server-Skript zeigt sie an)</li>
+        <li>Notfall: App auf iPhone <b>komplett killen</b> (Wischen nach oben + nach oben werfen) → wieder öffnen</li>
+        <li>Wenn alles nicht hilft: Safari → Einstellungen → Erweitert → Website-Daten → Eintrag deiner App-IP löschen → App neu installieren</li>
+      </ul>
+
+      <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin:14px 0 6px">Erstinstallation auf iPhone</div>
+      <ol style="padding-left:20px;margin:0 0 16px;color:var(--muted)">
+        <li>Mac-Server starten (<code style="background:var(--surface2);padding:1px 5px;border-radius:3px">Server starten.command</code> doppelklicken)</li>
+        <li>Im Terminal angezeigte URL notieren (z.B. <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">http://192.168.1.42:8080/laufplan_app.html</code>)</li>
+        <li>iPhone <b>Safari</b> öffnen → URL eintippen</li>
+        <li>App lädt → unten <b>Teilen-Icon</b> → <b>„Zum Home-Bildschirm"</b> → Hinzufügen</li>
+        <li>App-Icon erscheint, läuft jetzt wie eine native App (Vollbild, kein Browser-Rahmen)</li>
+      </ol>
+
+      <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin:14px 0 6px">Daten-Synchronisation</div>
+      <p style="margin:0 0 16px;color:var(--muted)">
+        Plan-Daten und Fortschritt werden im <b>localStorage des jeweiligen Geräts</b> gespeichert. <b>Mac und iPhone teilen die Daten NICHT</b> automatisch. Wenn du auf einem Gerät einen Plan erstellst, ist er nur dort. Workaround: Plan auf einem Gerät erstellen, dann nur dort tracken.
+      </p>
+
+      <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin:14px 0 6px">Wo werden Daten gespeichert</div>
+      <ul style="padding-left:20px;margin:0 0 16px;color:var(--muted)">
+        <li><b>Pläne, Fortschritt, Feedback, Coach-Reviews:</b> Browser-localStorage (gerätelokal)</li>
+        <li><b>API-Key:</b> ebenfalls localStorage (verlässt nie das Gerät)</li>
+        <li><b>Coach-Reviews/KI-Calls:</b> gehen direkt zu api.anthropic.com (Mac-Server sieht das nicht)</li>
+      </ul>
+
+      <button class="theme-close" onclick="closeHelpSheet()">Schließen</button>
+    </div>`;
+  document.getElementById('help-bg').classList.add('open');
+}
+
+async function doReload(btn) {
+  btn.classList.add('spinning');
+  try {
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.update()));
+    }
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+  } catch(e) {}
+  setTimeout(() => location.reload(), 250);
+}
+
+function load() {
+  const raw = localStorage.getItem('laufplan-state');
+  if (raw) {
+    // Bestandsdaten — laden, NIE neu seeden, auch wenn plans leer ist (User hat bewusst gelöscht)
+    try { state = { ...state, ...JSON.parse(raw) }; } catch(e) {}
+    return;
+  }
+  // Allererster Start (kein localStorage-Eintrag): Default-Plan setzen
+  initDefaultPlan();
+  state.defaultSeeded = true;
+  save();
+}
+
+function save() {
+  localStorage.setItem('laufplan-state', JSON.stringify(state));
+}
+
+// ─── Default 7.5km Plan ──────────────────────────────────────────────────
+function initDefaultPlan() {
+  const plan = {
+    id: 'default-75',
+    name: '7,5 km Plan',
+    goal: '7,5 km locker und ohne Stress laufen',
+    trainingsdays: 'Mo, Mi, Fr, Sa',
+    startDate: snapToMonday(todayISO()),
+    basePace: 8.0,
+    weekdays: ['Mo','Mi','Fr','Sa'],
+    longRunDay: 'Sa',
+    raceDate: null,
+    environment: 'mix',
+    restrictions: '',
+    incline: 1,
+    sprintPace: null,
+    hillTraining: false,
+    warmupM: 400,
+    cooldownM: 400,
+    weeks: [
+      { week:1, focus:'Struktur aufbauen', days:[
+        { tag:'Mo', type:'intervall', title:'6 × 400 m', paces:['400m @ 8.0','6× 400m @ 9.8','Pause: 200m @ 6.5','400m @ 8.0'] },
+        { tag:'Mi', type:'tempo', title:'3 km Tempo', paces:['400m @ 8.0','3km @ 9.2','400m @ 8.0'] },
+        { tag:'Fr', type:'easy', title:'3 km locker', paces:['3km @ 8.0'] },
+        { tag:'Sa', type:'lang', title:'5,0 km — Kinomap: Tokio', kinomap:{city:'Tokio · Imperial Palace',search:'Tokyo Imperial Palace running',tip:'Filter: Running · ★4+ · <50m Höhe'}, lang:{p1:{km:'2,0 km',s:'8.4'},p2:{km:'2,0 km',s:'9.0'},p3:{km:'1,0 km',s:'9.2'}} },
+        { tag:'So', type:'rest', title:'Ruhetag' }
+      ]},
+      { week:2, focus:'Volumen erhöhen', days:[
+        { tag:'Mo', type:'intervall', title:'5 × 600 m', paces:['400m @ 8.0','5× 600m @ 9.8','Pause: 200m @ 6.5','400m @ 8.0'] },
+        { tag:'Mi', type:'tempo', title:'3,5 km Tempo', paces:['400m @ 8.0','3,5km @ 9.2','400m @ 8.0'] },
+        { tag:'Fr', type:'easy', title:'3,5 km locker', paces:['3,5km @ 8.0'] },
+        { tag:'Sa', type:'lang', title:'5,5 km — Kinomap: Paris', kinomap:{city:'Paris · Seine Ufer',search:'Paris Seine running',tip:'Filter: Running · ★4+ · <50m Höhe'}, lang:{p1:{km:'2,2 km',s:'8.4'},p2:{km:'2,2 km',s:'9.0'},p3:{km:'1,1 km',s:'9.2'}} },
+        { tag:'So', type:'rest', title:'Ruhetag' }
+      ]},
+      { week:3, focus:'Qualität steigern', days:[
+        { tag:'Mo', type:'intervall', title:'6 × 200 m schnell', paces:['400m @ 8.0','6× 200m @ 10.2','Pause: 100m @ 6.5','400m @ 8.0'] },
+        { tag:'Mi', type:'tempo', title:'4 km Tempo', paces:['400m @ 8.0','4km @ 9.2','400m @ 8.0'] },
+        { tag:'Fr', type:'easy', title:'4 km locker', paces:['4km @ 8.0'] },
+        { tag:'Sa', type:'lang', title:'6,0 km — Kinomap: New York', kinomap:{city:'New York · Central Park',search:'Central Park NYC running',tip:'Filter: Running · ★4+ · <50m Höhe'}, lang:{p1:{km:'2,4 km',s:'8.4'},p2:{km:'2,4 km',s:'9.0'},p3:{km:'1,2 km',s:'9.5'}} },
+        { tag:'So', type:'rest', title:'Ruhetag' }
+      ]},
+      { week:4, focus:'Erholungswoche', days:[
+        { tag:'Mo', type:'intervall', title:'4 × 400 m', paces:['400m @ 8.0','4× 400m @ 9.8','Pause: 200m @ 6.5','400m @ 8.0'] },
+        { tag:'Mi', type:'tempo', title:'3 km Tempo', paces:['400m @ 8.0','3km @ 9.2','400m @ 8.0'] },
+        { tag:'Fr', type:'easy', title:'Pause oder 2 km locker', paces:['2km @ 8.0 (optional)'] },
+        { tag:'Sa', type:'lang', title:'6,0 km — Kinomap: Chicago', kinomap:{city:'Chicago · Lakefront Trail',search:'Chicago Lakefront running',tip:'Filter: Running · ★4+ · <30m Höhe'}, lang:{p1:{km:'2,4 km',s:'8.4'},p2:{km:'2,4 km',s:'9.0'},p3:{km:'1,2 km',s:'9.5'}} },
+        { tag:'So', type:'rest', title:'Ruhetag' }
+      ]},
+      { week:5, focus:'Zieldistanz herantasten', days:[
+        { tag:'Mo', type:'intervall', title:'4 × 800 m', paces:['400m @ 8.0','4× 800m @ 9.8','Pause: 200m @ 6.5','400m @ 8.0'] },
+        { tag:'Mi', type:'tempo', title:'2 × 12 Min Tempo', paces:['400m @ 8.0','2× 12Min @ 9.2','Pause: 4Min @ 6.5','400m @ 8.0'] },
+        { tag:'Fr', type:'easy', title:'4 km locker', paces:['4km @ 8.0'] },
+        { tag:'Sa', type:'lang', title:'7,0 km — Kinomap: London', kinomap:{city:'London · Hyde Park & Themse',search:'London Hyde Park Thames running',tip:'Filter: Running · ★4+ · <60m Höhe'}, lang:{p1:{km:'2,8 km',s:'8.4'},p2:{km:'2,8 km',s:'9.0'},p3:{km:'1,4 km',s:'9.5'}} },
+        { tag:'So', type:'rest', title:'Ruhetag' }
+      ]},
+      { week:6, focus:'Ziel erreicht! 🎯', days:[
+        { tag:'Mo', type:'intervall', title:'3 × 1000 m', paces:['400m @ 8.0','3× 1000m @ 9.8','Pause: 300m @ 6.5','400m @ 8.0'] },
+        { tag:'Mi', type:'tempo', title:'3 km Tempo', paces:['400m @ 8.0','3km @ 9.2','400m @ 8.0'] },
+        { tag:'Fr', type:'easy', title:'2,5 km locker', paces:['2,5km @ 8.0'] },
+        { tag:'Sa', type:'lang', title:'7,5 km ✓ — Kinomap: Tokio', kinomap:{city:'Tokio · Imperial Palace',search:'Tokyo Imperial Palace running',tip:'Bekannte Strecke — fühlt sich leichter an!'}, lang:{p1:{km:'3,0 km',s:'8.4'},p2:{km:'3,0 km',s:'9.0'},p3:{km:'1,5 km',s:'9.5'}} },
+        { tag:'So', type:'rest', title:'Ruhetag — du hast es geschafft!' }
+      ]}
+    ]
+  };
+  state.plans.push(plan);
+  state.activePlanId = plan.id;
+  state.currentWeek[plan.id] = 0;
+  save();
+}
+
+// ─── Navigation ──────────────────────────────────────────────────────────
+let currentScreen = 'tracker';
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  currentScreen = name;
+  state.lastScreen = name;
+  save();
+  if (name === 'tracker') renderTracker();
+  if (name === 'plans') renderPlans();
+  if (name === 'create') renderCreate();
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────
+function planProgress(plan) {
+  const total = plan.weeks.reduce((s,w)=>s+w.days.filter(d=>d.type!=='rest').length, 0);
+  const done = plan.weeks.reduce((s,w,wi)=>s+w.days.filter((d,di)=>d.type!=='rest'&&state.done[`${plan.id}-${wi}-${di}`]).length, 0);
+  return { total, done, pct: total ? Math.round(done/total*100) : 0 };
+}
+
+function badgeClass(t) {
+  return {intervall:'b-intervall',tempo:'b-tempo',easy:'b-easy',lang:'b-lang',rest:'b-rest'}[t]||'b-rest';
+}
+function badgeLabel(t) {
+  return {intervall:'Intervall',tempo:'Tempo',easy:'Locker',lang:'Langer Lauf',rest:'Ruhetag'}[t]||t;
+}
+function todayTag() {
+  return ['So','Mo','Di','Mi','Do','Fr','Sa'][new Date().getDay()];
+}
+
+// Robuster Anthropic-API-Call mit Retry bei "Failed to fetch" (Mobile-Safari / WLAN-Glitches)
+async function callAnthropic(body, opts = {}) {
+  const apiKey = opts.apiKey || state.apiKey;
+  if (!apiKey) throw new Error('Kein API-Key hinterlegt.');
+  const maxRetries = opts.maxRetries ?? 2;
+  let lastErr;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify(body)
+      });
+      if (!resp.ok) {
+        const e = await resp.json().catch(() => ({}));
+        throw new Error(e.error?.message || `API-Fehler ${resp.status}`);
+      }
+      return resp.json();
+    } catch(e) {
+      lastErr = e;
+      if (attempt === maxRetries) break;
+      // Exponentielles Backoff: 1s, 2s, 4s
+      await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
+    }
+  }
+  throw lastErr;
+}
+
+// Liest Zahl aus Input — akzeptiert Komma UND Punkt als Dezimaltrennzeichen
+function numFromInput(id) {
+  const el = document.getElementById(id);
+  if (!el) return NaN;
+  const v = String(el.value || '').replace(',', '.').trim();
+  return parseFloat(v);
+}
+
+// ─── Datum-Helpers ───────────────────────────────────────────────────────
+const TAG_OFFSET = { Mo:0, Di:1, Mi:2, Do:3, Fr:4, Sa:5, So:6 };
+
+function todayISO() {
+  const d = new Date();
+  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), dd = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${dd}`;
+}
+
+function snapToMonday(iso) {
+  if (!iso) return todayISO();
+  const d = new Date(iso + 'T00:00:00');
+  const day = d.getDay();          // 0=So .. 6=Sa
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), dd = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${dd}`;
+}
+
+function planStart(plan) {
+  if (!plan?.startDate) return null;
+  return new Date(plan.startDate + 'T00:00:00');
+}
+
+function dayDate(plan, weekIdx, tag) {
+  const s = planStart(plan);
+  if (!s || !(tag in TAG_OFFSET)) return null;
+  const d = new Date(s);
+  d.setDate(d.getDate() + weekIdx * 7 + TAG_OFFSET[tag]);
+  return d;
+}
+
+function planEnd(plan) {
+  const s = planStart(plan);
+  if (!s) return null;
+  const d = new Date(s);
+  d.setDate(d.getDate() + plan.weeks.length * 7 - 1);
+  return d;
+}
+
+function fmtShort(d)  { return d ? `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.` : ''; }
+function fmtFull(d)   { return d ? `${fmtShort(d)}${d.getFullYear()}` : ''; }
+
+function isSameDate(a, b) {
+  return a && b && a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+}
+
+// ─── Pace / Zielzeit ─────────────────────────────────────────────────────
+function paceFactor(plan) { return (plan && typeof plan.paceFactor === 'number') ? plan.paceFactor : 1.0; }
+
+function setPaceFactor(planId, f) {
+  const p = state.plans.find(x => x.id === planId);
+  if (!p) return;
+  p.paceFactor = Math.max(0.85, Math.min(1.20, Math.round(f * 100) / 100));
+  save();
+  renderTracker();
+}
+
+// Aktuellen paceFactor fest in den Plan einbacken: alle Pace-Strings * f, basePace * f, paceFactor zurück auf 1.0
+function bakeInPace(planId) {
+  const p = state.plans.find(x => x.id === planId);
+  if (!p) return;
+  const f = paceFactor(p);
+  if (Math.abs(f - 1.0) < 0.001) return;
+  const pct = Math.round((f - 1) * 100);
+  const sign = pct > 0 ? '+' : '';
+  if (!confirm(`Aktuelles Tempo (${sign}${pct} %) als neuen Standard übernehmen?\n\nAlle km/h-Werte werden im Plan fest umgeschrieben, der Tempo-Slider geht zurück auf 0 % — du hast dann wieder Spielraum nach oben/unten ohne den Override zu vergrößern.`)) return;
+
+  // 1) Alle Pace-Strings im Plan multiplizieren
+  p.weeks.forEach(w => {
+    w.days.forEach(d => {
+      if (Array.isArray(d.paces)) {
+        d.paces = d.paces.map(s => String(s).replace(/@\s*(\d+(?:[.,]\d+)?)/g, (m, n) => {
+          const v = parseFloat(n.replace(',','.')) * f;
+          return `@ ${v.toFixed(1)}`;
+        }));
+      }
+      if (d.lang) {
+        ['p1','p2','p3'].forEach(k => {
+          if (d.lang[k]?.s != null) {
+            const v = parseFloat(String(d.lang[k].s).replace(',','.')) * f;
+            d.lang[k].s = v.toFixed(1);
+          }
+        });
+      }
+    });
+  });
+
+  // 2) Plan-Pace-Anker mitziehen (basePace + sprintPace falls explizit gesetzt)
+  p.basePace = Math.round((p.basePace || 8.0) * f * 10) / 10;
+  if (p.sprintPace) p.sprintPace = Math.round(p.sprintPace * f * 10) / 10;
+
+  // 3) Eingefrorene Pace-Faktoren der bereits abgehakten Tage anpassen,
+  //    damit ihre Anzeige unverändert bleibt (visueller Gleichstand vor/nach Bake-In)
+  if (state.donePace) {
+    Object.keys(state.donePace).forEach(k => {
+      if (k.startsWith(planId + '-')) {
+        state.donePace[k] = (state.donePace[k] || 1.0) / f;
+      }
+    });
+  }
+
+  // 4) Slider zurück auf neutral
+  p.paceFactor = 1.0;
+
+  save();
+  renderTracker();
+}
+
+function adjustPace(planId, delta) {
+  const p = state.plans.find(x => x.id === planId);
+  if (!p) return;
+  setPaceFactor(planId, paceFactor(p) + delta);
+}
+
+// Pace-String parsen für Laufband-Tabelle
+// "400m @ 9.3" / "6× 400m @ 9.8" / "Pause: 200m @ 6.5" / "3km @ 9.2" / "2× 12Min @ 9.2" / "4× 30s @ 11.3"
+function parsePaceLine(str, defaultIncline, paceFactorVal) {
+  const f = paceFactorVal ?? 1.0;
+  let s = String(str).trim();
+  // Nur "Pause:" am Anfang ist eine echte Trabpause — bei Strides steht "Pause" oft mittendrin als Erklärung
+  const isPause = /^pause\s*:/i.test(s);
+  // Steigung extrahieren (session-spezifisch in der Notation)
+  let incline = defaultIncline ?? 1;
+  const inclineMatch = s.match(/↗\s*(\d+(?:[.,]\d+)?)\s*%/);
+  if (inclineMatch) incline = parseFloat(inclineMatch[1].replace(',','.'));
+  s = s.replace(/\s*↗\s*\d+(?:[.,]\d+)?\s*%/g, '').replace(/^pause\s*:\s*/i, '');
+  // Geschwindigkeit
+  const kmhMatch = s.match(/@\s*(\d+(?:[.,]\d+)?)/);
+  if (!kmhMatch) return null;
+  const kmh = parseFloat(kmhMatch[1].replace(',','.')) * f;
+  // Wiederholungen
+  const repMatch = s.match(/^(\d+)\s*[×x]\s*/i);
+  const repetitions = repMatch ? parseInt(repMatch[1]) : 1;
+  s = s.replace(/^\d+\s*[×x]\s*/i, '');
+  // Distanz / Dauer
+  let distanceLabel = null, timeSec = null;
+  let m;
+  // Helper: Distanz immer als "X,X km" oder "XXX m" je nach Größe
+  const formatDist = (km) => km >= 1
+    ? `${(Math.round(km*10)/10).toString().replace('.',',')} km`
+    : `${Math.round(km*1000)} m`;
+
+  if ((m = s.match(/^(\d+(?:[.,]\d+)?)\s*km/i))) {
+    const km = parseFloat(m[1].replace(',','.'));
+    distanceLabel = formatDist(km);
+    timeSec = (km / kmh) * 3600;
+  } else if ((m = s.match(/^(\d+)\s*m\b/i))) {
+    const meters = parseInt(m[1]);
+    distanceLabel = formatDist(meters / 1000);
+    timeSec = (meters / 1000 / kmh) * 3600;
+  } else if ((m = s.match(/^(\d+(?:[.,]\d+)?)\s*Min/i))) {
+    // Zeitbasiert → Distanz aus Geschwindigkeit ableiten (User braucht IMMER Distanz)
+    timeSec = parseFloat(m[1].replace(',','.')) * 60;
+    distanceLabel = formatDist((kmh * timeSec) / 3600);
+  } else if ((m = s.match(/^(\d+)\s*s/i))) {
+    // Zeitbasiert (Sekunden) → Distanz ableiten
+    timeSec = parseInt(m[1]);
+    distanceLabel = formatDist((kmh * timeSec) / 3600);
+  } else {
+    distanceLabel = '?';
+  }
+  return { isPause, repetitions, distanceLabel, kmh, incline, timeSec };
+}
+
+function fmtDuration(sec) {
+  if (!sec || sec < 0) return '–';
+  const total = Math.round(sec);
+  return `${Math.floor(total/60)}:${String(total%60).padStart(2,'0')}`;
+}
+
+function renderPaceTable(paces, defaultIncline, paceFactorVal, basePaceVal) {
+  if (!paces?.length) return '';
+  const f = paceFactorVal ?? 1.0;
+  const bp = basePaceVal ?? 8.0;
+  const trabKmh = Math.max(5.0, bp - 1.5) * f;    // Trabpause = Easy − 1,5 km/h
+  // Parsed-Liste vorbereiten + Strides-Pausen automatisch ergänzen wo nötig
+  const parsedRows = [];
+  let totalSec = 0;
+  paces.forEach(p => {
+    const parsed = parsePaceLine(p, defaultIncline, paceFactorVal);
+    if (!parsed) { parsedRows.push({ raw: p }); return; }
+    parsedRows.push({ ...parsed });
+    totalSec += (parsed.timeSec || 0) * (parsed.repetitions || 1);
+    // Strides-Erkennung: schnelles kurzes Workout mit ≥2 Wiederholungen, KI hat keine Pause notiert
+    const isStrides = parsed.repetitions >= 2 && parsed.timeSec && parsed.timeSec <= 60 && !paces.some(x => /^pause/i.test(String(x).trim()));
+    if (isStrides) {
+      const pauseSec = 60;
+      parsedRows.push({
+        isPause: true, repetitions: parsed.repetitions - 1,
+        distanceLabel: `${pauseSec} s`, kmh: trabKmh, incline: defaultIncline ?? 1, timeSec: pauseSec,
+        synthetic: true
+      });
+      totalSec += pauseSec * (parsed.repetitions - 1);
+    }
+  });
+  const rows = parsedRows.map(r => {
+    if (r.raw) return `<tr><td colspan="4" class="pt-fallback">${r.raw}</td></tr>`;
+    const distCell = r.repetitions > 1 ? `${r.repetitions}× ${r.distanceLabel}` : r.distanceLabel;
+    const cls = r.isPause ? 'pt-pause' : '';
+    const totalLabel = r.repetitions > 1 ? `${fmtDuration(r.timeSec)} <span class="pt-mini">×${r.repetitions}</span>` : fmtDuration(r.timeSec);
+    const pauseTag = r.isPause ? (r.synthetic ? ' (Trabpause)' : ' (Pause)') : '';
+    return `<tr class="${cls}">
+      <td class="pt-dist">${distCell}${pauseTag}</td>
+      <td class="pt-kmh">${r.kmh.toFixed(1)}</td>
+      <td class="pt-inc">${r.incline}%</td>
+      <td class="pt-time">${totalLabel}</td>
+    </tr>`;
+  }).join('');
+  const totalRow = `<tr class="pt-total"><td colspan="3">Σ Workout</td><td class="pt-time">≈ ${fmtDuration(totalSec)}</td></tr>`;
+  return `<table class="pace-table">
+    <thead><tr><th>Distanz</th><th class="pt-r">km/h</th><th class="pt-r">↗</th><th class="pt-r">Zeit</th></tr></thead>
+    <tbody>${rows}${totalRow}</tbody>
+  </table>`;
+}
+
+function renderLangTable(lang, defaultIncline, paceFactorVal) {
+  const f = paceFactorVal ?? 1.0;
+  const incl = defaultIncline ?? 1;
+  const phases = [
+    { label: 'Einlaufen', km: lang.p1.km, kmh: parseFloat(String(lang.p1.s).replace(',','.')) * f },
+    { label: 'Mitte',     km: lang.p2.km, kmh: parseFloat(String(lang.p2.s).replace(',','.')) * f },
+    { label: 'Ausklang',  km: lang.p3.km, kmh: parseFloat(String(lang.p3.s).replace(',','.')) * f }
+  ];
+  // Sind alle 3 Phasen identisch im Tempo? Dann eine einzige Zeile mit Total-Distanz (gleichmäßiger Lauf)
+  const allSamePace = Math.abs(phases[0].kmh - phases[1].kmh) < 0.05 && Math.abs(phases[1].kmh - phases[2].kmh) < 0.05;
+  let rows = '';
+  let totalSec = 0;
+  if (allSamePace) {
+    const totalKm = phases.reduce((acc, ph) => acc + (parseFloat(String(ph.km).replace(/[^\d.,]/g,'').replace(',','.')) || 0), 0);
+    const t = (totalKm / phases[0].kmh) * 3600;
+    totalSec = t;
+    rows = `<tr>
+      <td class="pt-dist">${(Math.round(totalKm*10)/10).toString().replace('.',',')} km <span class="pt-mini">gleichmäßig</span></td>
+      <td class="pt-kmh">${phases[0].kmh.toFixed(1)}</td>
+      <td class="pt-inc">${incl}%</td>
+      <td class="pt-time">${fmtDuration(t)}</td>
+    </tr>`;
+  } else {
+    rows = phases.map(r => {
+      const km = parseFloat(String(r.km).replace(/[^\d.,]/g,'').replace(',','.')) || 0;
+      const t = (km / r.kmh) * 3600;
+      totalSec += t;
+      return `<tr>
+        <td class="pt-dist">${r.km} <span class="pt-mini">${r.label}</span></td>
+        <td class="pt-kmh">${r.kmh.toFixed(1)}</td>
+        <td class="pt-inc">${incl}%</td>
+        <td class="pt-time">${fmtDuration(t)}</td>
+      </tr>`;
+    }).join('');
+  }
+  const totalRow = `<tr class="pt-total"><td colspan="3">Σ Workout</td><td class="pt-time">≈ ${fmtDuration(totalSec)}</td></tr>`;
+  return `<table class="pace-table">
+    <thead><tr><th>Distanz</th><th class="pt-r">km/h</th><th class="pt-r">↗</th><th class="pt-r">Zeit</th></tr></thead>
+    <tbody>${rows}${totalRow}</tbody>
+  </table>`;
+}
+
+function kmhToPace(kmh) {
+  if (!kmh || kmh <= 0) return '';
+  const total = Math.round((60 / kmh) * 60);
+  const m = Math.floor(total / 60), s = total % 60;
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+
+// Skaliert "@ X.X"-Werte UND ergänzt min/km in Klammern.
+// Erkennt im String enthaltene Steigung "↗ X%" (KI-Output für Hill-Sessions),
+// sonst wird die Plan-Default-Steigung verwendet.
+function scalePaceStr(str, f, defaultIncline) {
+  let s = String(str);
+  const inclineInStr = s.match(/↗\s*(\d+(?:[.,]\d+)?)\s*%/);
+  const incl = inclineInStr ? parseFloat(inclineInStr[1].replace(',','.')) : (defaultIncline ?? null);
+  // Steigung aus String entfernen (kommt gleich neu hinten dran)
+  s = s.replace(/\s*↗\s*\d+(?:[.,]\d+)?\s*%/g, '');
+  s = s.replace(/@\s*(\d+(?:[.,]\d+)?)/g, (m, n) => {
+    const v = parseFloat(n.replace(',','.')) * f;
+    return `@ ${v.toFixed(1)} (${kmhToPace(v)}/km)`;
+  });
+  if (incl != null && incl > 0) s += ` ↗ ${incl}%`;
+  return s;
+}
+function scaledKmh(s, f) {
+  const v = parseFloat(String(s).replace(',','.')) * f;
+  return v.toFixed(1);
+}
+function scaledPace(s, f) {
+  const v = parseFloat(String(s).replace(',','.')) * f;
+  return kmhToPace(v);
+}
+
+// Letzter langer Lauf = Zieldistanz-Lauf
+function targetRun(plan) {
+  for (let wi = plan.weeks.length - 1; wi >= 0; wi--) {
+    const w = plan.weeks[wi];
+    for (let di = w.days.length - 1; di >= 0; di--) {
+      if (w.days[di].type === 'lang' && w.days[di].lang) return w.days[di];
+    }
+  }
+  return null;
+}
+
+function targetTime(plan) {
+  // Ziel am Ende = Zieldistanz aus Plan-Setup + relevante Pace
+  // Wenn Target-Pace gesetzt: die nutzen. Sonst: Easy-Pace × Pace-Faktor.
+  const km = parseFloat(plan.distance) || 0;
+  if (km === 0) return null;
+  const f = paceFactor(plan);
+  let kmh, source;
+  if (plan.targetPaceSecPerKm) {
+    kmh = 3600 / plan.targetPaceSecPerKm;
+    source = 'Zielpace';
+  } else {
+    kmh = (plan.basePace || 8.0) * f;
+    source = 'Easy-Pace';
+  }
+  const minutes = (km / kmh) * 60;
+  return { minutes, km, pacePerKm: 60 / kmh, source };
+}
+
+function fmtMmSs(mins) {
+  const total = Math.round(mins * 60);
+  const m = Math.floor(total / 60), s = total % 60;
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+function fmtPace(minPerKm) {
+  const total = Math.round(minPerKm * 60);
+  const m = Math.floor(total / 60), s = total % 60;
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+function fmtFactor(f) {
+  const pct = Math.round((f - 1) * 100);
+  return pct === 0 ? '0 %' : (pct > 0 ? `+${pct} %` : `${pct} %`);
+}
+
+// ─── Feedback & Coach ────────────────────────────────────────────────────
+function setFeedback(planId, wIdx, dayIdx, value) {
+  if (!state.feedback) state.feedback = {};
+  const key = `${planId}-${wIdx}-${dayIdx}`;
+  if (state.feedback[key] === value) delete state.feedback[key];
+  else state.feedback[key] = value;
+  // Bei neuem Feedback alle Coach-Dismissals dieses Plans zurücksetzen — Lage hat sich geändert
+  if (state.coachDismiss) {
+    Object.keys(state.coachDismiss).forEach(k => { if (k.startsWith(planId + '-')) delete state.coachDismiss[k]; });
+  }
+  save();
+  renderTracker();
+}
+
+// Liste der Feedback-Werte chronologisch (älteste zuerst), nur erledigte Tage
+function feedbackHistory(plan) {
+  const out = [];
+  plan.weeks.forEach((w, wi) => {
+    let nri = 0;
+    w.days.forEach((d) => {
+      if (d.type === 'rest') return;
+      const idx = nri++;
+      const key = `${plan.id}-${wi}-${idx}`;
+      if (state.done[key]) {
+        out.push({ key, wi, idx, type: d.type, fb: state.feedback?.[key] || null });
+      }
+    });
+  });
+  return out;
+}
+
+function dismissSuggestion(planId, sid) {
+  if (!state.coachDismiss) state.coachDismiss = {};
+  state.coachDismiss[`${planId}-${sid}`] = true;
+  save();
+  renderTracker();
+}
+
+function coachSuggest(plan) {
+  const hist = feedbackHistory(plan);
+  const rated = hist.filter(h => h.fb);
+  const last = rated.slice(-4);
+  const dismissed = (sid) => state.coachDismiss?.[`${plan.id}-${sid}`];
+  const pf = paceFactor(plan);
+
+  const { total, done, pct } = planProgress(plan);
+
+  // 0) Adaptive KI-Anpassung an Feedback (höchste Priorität nach 4+ Bewertungen)
+  if (rated.length >= 4 && state.apiKey && !dismissed('adaptFeedback')) {
+    const stats = rated.reduce((acc, h) => { acc[h.fb] = (acc[h.fb]||0)+1; return acc; }, {});
+    const summary = `${stats.easy||0}× easy · ${stats.ok||0}× passt · ${stats.hard||0}× hart`;
+    return {
+      id: 'adaptFeedback',
+      tag: 'KI-Anpassung',
+      title: `Plan an dein Feedback anpassen?`,
+      text: `Du hast ${rated.length} Trainings bewertet (${summary}). Die KI kann auf Basis deines konkreten Feedbacks die noch nicht erledigten Wochen gezielt optimieren — schneller wenn easy, lockerer wenn hart, differenziert pro Trainings-Typ. Wird als neue Version (v) erstellt — Original bleibt.`,
+      primary: 'KI-Anpassung starten',
+      action: 'adaptFeedback'
+    };
+  }
+
+  // 1) Plan zu Ende und gut gelaufen → KI-Verlängerung anbieten
+  if (pct >= 80 && !dismissed('extend')) {
+    return {
+      id: 'extend',
+      tag: 'Plan-Coach',
+      title: 'Plan fast geschafft — weiter?',
+      text: `Du hast ${pct} % erledigt. KI kann dir 3 Aufbauwochen Richtung nächster Distanz dranhängen — Tempo und Stil deines aktuellen Plans bleiben erhalten.`,
+      primary: 'KI-Verlängerung erstellen',
+      action: 'extend'
+    };
+  }
+
+  // 2) ≥3 letzte Bewertungen 'easy' → Tempo hoch oder langer Lauf länger
+  if (last.length >= 3 && last.slice(-3).every(h => h.fb === 'easy') && !dismissed('tempoUp')) {
+    return {
+      id: 'tempoUp',
+      tag: 'Tempo-Vorschlag',
+      title: 'Läuft zu locker — Tempo +5 %?',
+      text: `Deine letzten 3 Läufe waren „easy". Ich erhöhe alle km/h-Werte um 5 % (aktuell ${fmtFactor(pf)} → ${fmtFactor(pf + 0.05)}). Erledigte Tage bleiben unverändert.`,
+      primary: 'Tempo +5 % übernehmen',
+      action: 'tempoUp'
+    };
+  }
+
+  // 3) ≥2 letzte Bewertungen 'hard' → Tempo runter
+  if (last.length >= 2 && last.slice(-2).every(h => h.fb === 'hard') && !dismissed('tempoDown')) {
+    return {
+      id: 'tempoDown',
+      tag: 'Erholungs-Vorschlag',
+      title: 'Zu hart — Tempo −5 %?',
+      text: `Die letzten 2 Läufe waren „hart". Ich nehme alle km/h-Werte um 5 % zurück (${fmtFactor(pf)} → ${fmtFactor(pf - 0.05)}) und du läufst die kommenden Einheiten entspannter.`,
+      primary: 'Tempo −5 % übernehmen',
+      action: 'tempoDown'
+    };
+  }
+
+  // 4) 4 'easy' aber kein direkter Vorschlag → langen Lauf verlängern
+  if (rated.length >= 4 && rated.slice(-4).filter(h => h.fb === 'easy').length >= 4 && !dismissed('langLong')) {
+    return {
+      id: 'langLong',
+      tag: 'Distanz-Vorschlag',
+      title: 'Langen Lauf um 0,5 km verlängern?',
+      text: 'Wenn das Tempo passt, aber das Volumen langweilt — ich verlängere den nächsten langen Lauf um 0,5 km (anteilig auf alle Phasen verteilt).',
+      primary: 'Nächsten langen Lauf +0,5 km',
+      action: 'langLong'
+    };
+  }
+
+  return null;
+}
+
+async function applySuggestion(plan, sug, btnEl) {
+  if (sug.action === 'tempoUp')   { setPaceFactor(plan.id, paceFactor(plan) + 0.05); return; }
+  if (sug.action === 'tempoDown') { setPaceFactor(plan.id, paceFactor(plan) - 0.05); return; }
+  if (sug.action === 'langLong') {
+    // Finde nächsten unerledigten lang-Lauf, sonst letzten
+    let target = null;
+    plan.weeks.forEach((w, wi) => {
+      let nri = 0;
+      w.days.forEach((d) => {
+        if (d.type === 'rest') return;
+        const idx = nri++;
+        if (d.type === 'lang' && d.lang && !target) {
+          const k = `${plan.id}-${wi}-${idx}`;
+          if (!state.done[k]) target = d;
+        }
+      });
+    });
+    if (!target) target = targetRun(plan);
+    if (target?.lang) {
+      // 0,5 km gleichmäßig (40/40/20) verteilen
+      const add = { p1: 0.2, p2: 0.2, p3: 0.1 };
+      ['p1','p2','p3'].forEach(k => {
+        const cur = parseFloat(String(target.lang[k].km).replace(/[^\d.,]/g,'').replace(',','.')) || 0;
+        target.lang[k].km = (cur + add[k]).toFixed(1).replace('.', ',') + ' km';
+      });
+      save();
+      renderTracker();
+    }
+    return;
+  }
+  if (sug.action === 'extend') {
+    if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'KI denkt nach …'; }
+    try {
+      await extendPlanWithAI(plan);
+    } catch(e) {
+      alert('Verlängerung fehlgeschlagen: ' + (e.message || e));
+      renderTracker();
+    }
+    return;
+  }
+  if (sug.action === 'adaptFeedback') {
+    await adaptPlanFromFeedback(plan, btnEl);
+    return;
+  }
+}
+
+// ─── Coach-Review: zweiter API-Call, der den Plan fachlich bewertet ──────
+async function reviewPlanWithCoach(plan, btnEl, opts = {}) {
+  const apiKey = state.apiKey;
+  if (!apiKey) {
+    alert('Coach-Review braucht einen API-Key (Tab Erstellen → Weg B). Ohne Key kein Review möglich.');
+    return;
+  }
+  if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Coach prüft …'; }
+
+  // Plan kompakt zusammenfassen
+  const summary = plan.weeks.map(w => {
+    const lines = w.days.filter(d => d.type !== 'rest').map(d => {
+      const meta = d.lang ? `lang ${d.lang.p1.km}/${d.lang.p2.km}/${d.lang.p3.km} @${d.lang.p1.s}/${d.lang.p2.s}/${d.lang.p3.s}` : (d.paces ? d.paces.join(' · ') : '');
+      return `${d.tag} ${d.type}: ${d.title} [${meta}]`;
+    });
+    return `W${w.week} (${w.focus}): ${lines.join(' | ')}`;
+  }).join('\n');
+
+  const expLabel = { beginner:'Anfänger <1J', recreational:'Hobby 1-3J', experienced:'Erfahren 3+J', competitive:'Wettkampf' }[plan.experience] || 'Hobby';
+  const bt = plan.bestTime5kSec ? `${Math.floor(plan.bestTime5kSec/60)}:${String(plan.bestTime5kSec%60).padStart(2,'0')}` : '—';
+
+  const prompt = `${COACH_PERSONA_INTRO}
+
+Du bewertest den PLAN auf Basis der GEGEBENEN Läufer-Eingaben. WICHTIG:
+- Die Läufer-Eingaben (Easy-Tempo, Bestzeit, Erfahrung) sind FAKTEN, nicht zu hinterfragen
+- Bewerte NUR ob der PLAN methodisch zu diesen Eingaben passt
+- KEIN Score-Abzug dafür, dass User keine Bestzeit angegeben hat oder Easy-Pace ungewöhnlich erscheint
+- Gib hohe Scores wenn Plan + Eingaben methodisch konsistent sind, auch wenn die Eingaben selbst diskutabel wären
+
+LÄUFER (Eingaben sind FIX):
+- Erfahrung: ${expLabel}
+- Easy-Tempo (E-Pace): ${plan.basePace} km/h — vom User selbst angegeben, gilt als korrekt
+- 5k-Bestzeit: ${bt}${bt === '—' ? ' (nicht angegeben — bewerte den Plan trotzdem auf Basis von Easy-Pace allein, kein Score-Abzug für fehlende Bestzeit)' : ''}
+- Längster Lauf bisher: ${plan.longestRun} km
+- Zieldistanz: aus dem Plan ablesbar
+- Plan-Steigung: ${plan.incline ?? 1}%
+
+PLAN-BEWERTUNGS-KRITERIEN (NUR diese strafen Score):
+- 80/20-Polarisierung: ist Easy-Anteil ~80%?
+- Long Runs gleichmäßig im Z2 (alle 3 Phasen identisch)?
+- Volumen-Steigerungen ≤10%/Woche, ≤15% nach Deload?
+- Mesozyklus 3:1 (Erholungswoche eingebaut)?
+- Tapering Schlusswoche: -40% Volumen, kein hartes Intervall?
+- Pace-Zonen INTERN konsistent: Tempo > Easy + 1.0; Intervall > Tempo + 0.6 etc.?
+- Keine 2 harte Einheiten in Folge?
+
+ZIEL: ${plan.weeks.length} Wochen → ${plan.weeks[plan.weeks.length-1].days.find(d=>d.type==='lang')?.title || '?'}
+
+PLAN:
+${summary}
+
+Antworte als JSON (kein Markdown-Backtick, kein Text drumherum):
+{
+  "overall": <Score 1-10>,
+  "verdict": "<1 Satz Verdikt>",
+  "scores": {
+    "easyHardRatio": <1-10>,
+    "volumeProgression": <1-10>,
+    "longRuns": <1-10>,
+    "tapering": <1-10>,
+    "paceLogic": <1-10>,
+    "injuryRisk": <1-10>
+  },
+  "strengths": ["<2-3 konkrete Stärken mit Wochenbezug>"],
+  "weaknesses": ["<2-3 konkrete Schwächen mit Wochenbezug>"],
+  "redFlags": ["<falls vorhanden, sonst leer>"],
+  "improvements": ["<2-3 sofort umsetzbare Verbesserungsvorschläge>"]
+}`;
+
+  try {
+    const data = await callAnthropic({
+      model: 'claude-opus-4-7',
+      max_tokens: 1500,
+      messages: [{ role:'user', content: prompt }]
+    });
+    const text = data.content.find(b => b.type === 'text')?.text || '';
+    const clean = text.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+    const review = JSON.parse(clean);
+    plan.coachReview = { ...review, reviewedAt: todayISO() };
+    save();
+    if (!opts.silent) showCoachReview(plan);
+  } catch(e) {
+    if (!opts.silent) {
+      alert('Coach-Review fehlgeschlagen: ' + e.message + '\n\nPlan ist trotzdem gespeichert. Versuche es später nochmal über „Coach-Review starten".');
+    }
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Coach-Review'; }
+    // bei silent: nicht alarmieren — User entdeckt fehlenden Score selbst und kann manuell triggern
+  }
+}
+
+function showCoachReview(plan) {
+  const r = plan.coachReview;
+  if (!r) return;
+  const scoreColor = (s) => s >= 8 ? 'var(--green)' : s >= 6 ? 'var(--amber)' : 'var(--red)';
+  const scoreRow = (label, s) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)"><span style="font-size:12px;color:var(--muted)">${label}</span><span style="font-family:'DM Mono',monospace;font-weight:700;color:${scoreColor(s)}">${s}/10</span></div>`;
+  // Datum hübsch
+  const reviewDateStr = r.reviewedAt ? new Date(r.reviewedAt + 'T00:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}) : '';
+  document.getElementById('planedit-body').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div>
+        <div style="font-size:11px;color:var(--faint);letter-spacing:0.08em;text-transform:uppercase">Coach-Review</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:2px">${plan.name}</div>
+        ${reviewDateStr ? `<div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--faint);margin-top:3px">geprüft am ${reviewDateStr}</div>` : ''}
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:32px;font-weight:700;color:${scoreColor(r.overall)}">${r.overall}/10</div>
+    </div>
+    <div style="font-size:13px;line-height:1.5;padding:10px 12px;background:var(--surface2);border-radius:8px;margin-bottom:14px">${r.verdict}</div>
+
+    <div style="font-size:10px;font-weight:700;color:var(--faint);letter-spacing:0.1em;text-transform:uppercase;margin:14px 0 6px">Score-Detail</div>
+    ${scoreRow('Easy/Hart 80/20', r.scores.easyHardRatio)}
+    ${scoreRow('Volumen-Progression', r.scores.volumeProgression)}
+    ${scoreRow('Lange Läufe', r.scores.longRuns)}
+    ${scoreRow('Tapering', r.scores.tapering)}
+    ${scoreRow('Pace-Logik', r.scores.paceLogic)}
+    ${scoreRow('Verletzungs-Risiko (10 = kein Risiko)', r.scores.injuryRisk)}
+
+    ${r.strengths?.length ? `<div style="font-size:10px;font-weight:700;color:var(--green);letter-spacing:0.1em;text-transform:uppercase;margin:14px 0 6px">Stärken</div><ul style="font-size:12px;line-height:1.5;color:var(--muted);padding-left:18px">${r.strengths.map(s=>`<li>${s}</li>`).join('')}</ul>` : ''}
+
+    ${r.weaknesses?.length ? `<div style="font-size:10px;font-weight:700;color:var(--amber);letter-spacing:0.1em;text-transform:uppercase;margin:14px 0 6px">Schwächen</div><ul style="font-size:12px;line-height:1.5;color:var(--muted);padding-left:18px">${r.weaknesses.map(s=>`<li>${s}</li>`).join('')}</ul>` : ''}
+
+    ${r.redFlags?.length ? `<div style="font-size:10px;font-weight:700;color:var(--red);letter-spacing:0.1em;text-transform:uppercase;margin:14px 0 6px">Red Flags</div><ul style="font-size:12px;line-height:1.5;color:var(--muted);padding-left:18px">${r.redFlags.map(s=>`<li>${s}</li>`).join('')}</ul>` : ''}
+
+    ${r.improvements?.length ? `<div style="font-size:10px;font-weight:700;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin:14px 0 6px">Verbesserungsvorschläge</div><ul style="font-size:12px;line-height:1.5;color:var(--muted);padding-left:18px">${r.improvements.map(s=>`<li>${s}</li>`).join('')}</ul>` : ''}
+
+    ${(r.improvements?.length && state.apiKey) ? `
+      <div style="font-size:10px;font-weight:700;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin:18px 0 8px">Coach-Verbesserungen anwenden</div>
+      <button class="generate-btn" style="margin-bottom:6px;background:transparent;color:var(--accent);border:1.5px solid var(--accent)" onclick="createImprovedPlanCopy(state.plans.find(p=>p.id==='${plan.id}'),this)">Als neue Version (Kopie) — empfohlen</button>
+      <div style="font-size:10px;color:var(--faint);line-height:1.4;margin-bottom:10px;padding:0 4px">Original bleibt erhalten · neue Version wird automatisch geprüft · du entscheidest danach mit Score-Vergleich</div>
+      <button class="generate-btn" style="margin-bottom:6px;background:var(--surface2);color:var(--text);border:1px solid var(--border2);font-size:12px" onclick="applyCoachImprovements(state.plans.find(p=>p.id==='${plan.id}'),this)">Direkt im aktuellen Plan überschreiben</button>
+      <div style="font-size:10px;color:var(--faint);line-height:1.4;padding:0 4px">Nur 1 Backup zum Zurückrollen · alter Score geht verloren</div>
+    ` : ''}
+    ${(state.apiKey && Object.keys(state.feedback||{}).filter(k => k.startsWith(plan.id+'-')).length >= 3) ? `
+      <div style="font-size:10px;font-weight:700;color:var(--purple);letter-spacing:0.1em;text-transform:uppercase;margin:18px 0 8px">Adaptive Anpassung an dein Feedback</div>
+      <button class="generate-btn" style="margin-bottom:6px;background:linear-gradient(135deg,var(--afo-purple),var(--afo-purple-light));color:#fff;border:none" onclick="adaptPlanFromFeedback(state.plans.find(p=>p.id==='${plan.id}'),this)">Plan an Feedback anpassen</button>
+      <div style="font-size:10px;color:var(--faint);line-height:1.4;padding:0 4px">KI wertet deine ${Object.keys(state.feedback||{}).filter(k => k.startsWith(plan.id+'-')).length} Feedbacks aus und optimiert die noch nicht abgeschlossenen Wochen · neue Version (v)</div>
+    ` : ''}
+    ${plan.previousVersion ? `
+      <button class="generate-btn" style="margin-top:14px;background:transparent;color:var(--muted);border:1px dashed var(--border2);font-size:12px;font-weight:500" onclick="rollbackPlanVersion('${plan.id}')">↶ Vorherige Version wiederherstellen</button>
+    ` : ''}
+
+    <div style="display:flex;gap:8px;margin-top:18px">
+      <button class="generate-btn" style="background:transparent;color:var(--muted);border:1px solid var(--border2);font-size:12px;flex:0 0 auto;padding:14px 18px" onclick="reviewPlanWithCoach(state.plans.find(p=>p.id==='${plan.id}'),this)">Erneut prüfen</button>
+      <button class="generate-btn" style="flex:1" onclick="closePlanEdit()">Schließen</button>
+    </div>`;
+  document.getElementById('planedit-bg').classList.add('open');
+}
+
+// Coach-Verbesserungsvorschläge per KI in den Plan einarbeiten
+async function applyCoachImprovements(plan, btnEl) {
+  if (!plan.coachReview?.improvements?.length) {
+    alert('Keine Verbesserungsvorschläge vorhanden — erst Coach-Review laufen lassen.');
+    return;
+  }
+  if (!state.apiKey) {
+    alert('Für die Coach-Umarbeitung wird der API-Key benötigt (Tab Erstellen).');
+    return;
+  }
+  if (!confirm(`Coach-Verbesserungen jetzt in den Plan einarbeiten?\n\n— Aktueller Plan wird ersetzt\n— Vorgängerversion bleibt als 1 Backup verfügbar\n— Neuer Coach-Review läuft automatisch\n\nWeiter?`)) return;
+  if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Coach baut um …'; }
+
+  const improvements = plan.coachReview.improvements.map(s => `- ${s}`).join('\n');
+  const planJson = JSON.stringify({ name: plan.name, goal: plan.goal, trainingsdays: plan.trainingsdays, weeks: plan.weeks });
+  const prompt = `${COACH_PERSONA_INTRO}
+
+Du sollst den folgenden Trainingsplan überarbeiten — die Liste der Verbesserungsvorschläge UMSETZEN, sonst aber die grundsätzliche Plan-Struktur erhalten (selbe Anzahl Wochen, selbe Trainingstage, selbe Ruhetage).
+
+AKTUELLER PLAN:
+${planJson}
+
+VERBESSERUNGSVORSCHLÄGE (alle umsetzen):
+${improvements}
+
+KONTEXT: Easy-Pace ${plan.basePace} km/h, längster Lauf bisher ${plan.longestRun} km, Erfahrung "${plan.experience}", Steigung ${plan.incline}%.
+
+PFLICHT-CONSTRAINTS BEIM UMBAU:
+- Long Run alle 3 Phasen identisch (kein Stufentempo) — p1.s = p2.s = p3.s
+- 80/20-Polarisierung (max 1 harte Einheit/Woche bei "festigen", max 2 bei "race")
+- Tapering Schlusswoche: −40 % Volumen, kein hartes Intervall, Mi nur Easy oder Strides
+- 10 %-Volumen-Wachstumsregel beachten
+
+Antworte NUR mit dem komplett überarbeiteten Plan-JSON (gleiche Struktur: name, goal, trainingsdays, weeks). Kein Text drumherum, keine Backticks.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': state.apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-7',
+        max_tokens: 8000,
+        messages: [{ role:'user', content: prompt }]
+      })
+    });
+    if (!resp.ok) {
+      const e = await resp.json().catch(() => ({}));
+      throw new Error(e.error?.message || `API ${resp.status}`);
+    }
+    const data = await resp.json();
+    const text = data.content.find(b => b.type === 'text')?.text || '';
+    const clean = text.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+    const newPlanData = JSON.parse(clean);
+    if (!newPlanData.weeks?.length) throw new Error('Ungültige Plan-Struktur in Antwort');
+
+    // Backup erstellen (überschreibt evtl. älteres Backup → nur 1 Stufe)
+    plan.previousVersion = {
+      weeks: JSON.parse(JSON.stringify(plan.weeks)),
+      name: plan.name,
+      goal: plan.goal,
+      trainingsdays: plan.trainingsdays,
+      coachReview: plan.coachReview ? JSON.parse(JSON.stringify(plan.coachReview)) : null,
+      backupAt: todayISO()
+    };
+
+    plan.weeks = newPlanData.weeks;
+    if (newPlanData.name) plan.name = newPlanData.name;
+    if (newPlanData.goal) plan.goal = newPlanData.goal;
+    plan.coachReview = null;  // alter Score gilt nicht mehr — neuer kommt gleich
+    save();
+    closePlanEdit();
+    renderTracker();
+    // Pause damit API nicht Race-limited wird, dann neuen Review starten
+    await new Promise(r => setTimeout(r, 1500));
+    await reviewPlanWithCoach(plan);
+  } catch(e) {
+    alert('Coach-Umarbeitung fehlgeschlagen: ' + e.message);
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Verbesserungen einarbeiten'; }
+  }
+}
+
+// Adaptive Plan-Anpassung an Feedback-Historie — KI optimiert nur die verbleibenden Wochen
+async function adaptPlanFromFeedback(plan, btnEl) {
+  if (!state.apiKey) { alert('Brauche API-Key (Tab Erstellen → Plan generieren).'); return; }
+
+  // Feedback-Historie sammeln (nur erledigte Trainings)
+  const feedbackEntries = [];
+  plan.weeks.forEach((w, wi) => {
+    let nri = 0;
+    w.days.forEach(d => {
+      if (d.type === 'rest') return;
+      const idx = nri++;
+      const key = `${plan.id}-${wi}-${idx}`;
+      if (state.done?.[key]) {
+        feedbackEntries.push({
+          week: w.week, day: d.tag, type: d.type, title: d.title,
+          feedback: state.feedback?.[key] || '(kein Feedback)'
+        });
+      }
+    });
+  });
+  const ratedCount = feedbackEntries.filter(e => e.feedback !== '(kein Feedback)').length;
+  if (ratedCount < 3) {
+    alert(`Mindestens 3 Trainings mit Feedback nötig.\nBisher: ${ratedCount} bewertet.\n\nGib nach jedem Training easy / passt / hart ein, dann meldet sich die KI.`);
+    return;
+  }
+
+  // Welche Woche ist die erste noch NICHT komplett abgeschlossene? Ab da wird angepasst.
+  let firstIncompleteWeekIdx = -1;
+  plan.weeks.forEach((w, wi) => {
+    if (firstIncompleteWeekIdx !== -1) return;
+    const nonRest = w.days.filter(d => d.type !== 'rest').length;
+    let nri = 0, done = 0;
+    w.days.forEach(d => {
+      if (d.type === 'rest') return;
+      const idx = nri++;
+      if (state.done?.[`${plan.id}-${wi}-${idx}`]) done++;
+    });
+    if (done < nonRest) firstIncompleteWeekIdx = wi;
+  });
+  if (firstIncompleteWeekIdx === -1) {
+    alert('Alle Wochen sind vollständig abgeschlossen — keine Anpassung mehr nötig.');
+    return;
+  }
+
+  const stats = { easy: 0, ok: 0, hard: 0, none: 0 };
+  feedbackEntries.forEach(e => {
+    if (e.feedback === '(kein Feedback)') stats.none++;
+    else if (e.feedback in stats) stats[e.feedback]++;
+  });
+  const futureWeeks = plan.weeks.slice(firstIncompleteWeekIdx);
+  const completedWeeks = plan.weeks.slice(0, firstIncompleteWeekIdx);
+
+  if (!confirm(`Plan an dein Feedback anpassen?\n\n— ${ratedCount} Trainings mit Feedback ausgewertet (${stats.easy}× easy · ${stats.ok}× passt · ${stats.hard}× hart)\n— Anpassung ab Woche ${plan.weeks[firstIncompleteWeekIdx].week}\n— Wird als neue Version (v) erstellt — Original bleibt\n— Coach prüft die neue Version automatisch`)) return;
+
+  if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'KI passt an …'; }
+
+  const feedbackList = feedbackEntries.map(e => `- W${e.week} ${e.day} ${e.type} (${e.title}): ${e.feedback}`).join('\n');
+  const prompt = `${COACH_PERSONA_INTRO}
+
+Du sollst die VERBLEIBENDEN Wochen eines bereits laufenden Plans an das echte Feedback des Läufers anpassen. NICHT den ganzen Plan neu — nur die noch nicht abgeschlossenen Wochen optimieren.
+
+LÄUFER-PROFIL:
+- Easy ${plan.basePace} km/h · 5k-Bestzeit ${plan.bestTime5kSec ? Math.floor(plan.bestTime5kSec/60)+':'+String(plan.bestTime5kSec%60).padStart(2,'0') : '—'} · längster Lauf bisher ${plan.longestRun} km · Erfahrung "${plan.experience}" · Steigung ${plan.incline}%
+- Aktueller Pace-Faktor: ${((plan.paceFactor||1.0)*100).toFixed(0)}% (User-Override des Plan-Tempos)
+
+FEEDBACK BISHER (${ratedCount} bewertete Trainings):
+${stats.easy}× easy, ${stats.ok}× passt, ${stats.hard}× hart, ${stats.none}× ohne Feedback
+
+FEEDBACK-DETAIL:
+${feedbackList}
+
+ANALYSE-AUFTRAG:
+- Überwiegend "easy" → Intensität in Folgewochen anheben (Tempo höher, Volumen ggf. mehr)
+- Überwiegend "hard" → Pace zurücknehmen, mehr Easy, weniger Quality
+- Differenziert pro Typ (z.B. Tempo "hart" aber Long "ok") → gezielt anpassen, nicht pauschal
+- "passt" überwiegt → Plan beibehalten, nur minimal nachschärfen
+
+VERBLEIBENDE WOCHEN (DIESE komplett überarbeiten — selbe Anzahl):
+${JSON.stringify({ weeks: futureWeeks })}
+
+PFLICHT-CONSTRAINTS:
+- Long Run alle 3 Phasen identisch (p1.s = p2.s = p3.s)
+- 80/20-Polarisierung
+- Selbe Wochen-Anzahl, gleiche Trainingstage, gleiche Ruhetage wie im Input
+- Tapering Schlusswoche bleibt erhalten
+
+Antworte NUR mit JSON-Format { "weeks": [...] } — Anzahl Wochen exakt wie im Input. Kein Text drumherum, keine Backticks.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': state.apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-7',
+        max_tokens: 8000,
+        messages: [{ role:'user', content: prompt }]
+      })
+    });
+    if (!resp.ok) {
+      const e = await resp.json().catch(()=>({}));
+      throw new Error(e.error?.message || `API ${resp.status}`);
+    }
+    const data = await resp.json();
+    const text = data.content.find(b => b.type === 'text')?.text || '';
+    const clean = text.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+    const adaptedData = JSON.parse(clean);
+    if (!adaptedData.weeks?.length || adaptedData.weeks.length !== futureWeeks.length) {
+      throw new Error(`KI hat ${adaptedData.weeks?.length || 0} Wochen geliefert, erwartet ${futureWeeks.length}`);
+    }
+
+    // Neue Plan-Version: erledigte Wochen UNVERÄNDERT + neue adaptierte Wochen
+    const baseName = plan.name.replace(/\s*\(v\d+\)$/, '');
+    const existingVersions = state.plans
+      .map(p => (p.name || '').match(new RegExp('^' + baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*\\(v(\\d+)\\)$')))
+      .filter(m => m).map(m => parseInt(m[1]));
+    const versionNum = (existingVersions.length ? Math.max(...existingVersions) : 1) + 1;
+
+    const newPlan = {
+      ...plan,
+      id: 'plan-' + Date.now(),
+      name: `${baseName} (v${versionNum})`,
+      weeks: [...completedWeeks, ...adaptedData.weeks],
+      basedOnPlanId: plan.id,
+      coachReview: null,
+      previousVersion: undefined,
+      adaptedFromFeedback: { count: ratedCount, stats, fromWeek: plan.weeks[firstIncompleteWeekIdx].week }
+    };
+    state.plans.push(newPlan);
+    save();
+    closePlanEdit();
+    await new Promise(r => setTimeout(r, 1500));
+    await reviewPlanWithCoach(newPlan, null, { silent: true });
+    showPlanComparisonAfterImprovement(plan.id, newPlan.id);
+  } catch(e) {
+    alert('Anpassung fehlgeschlagen: ' + e.message);
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Plan an Feedback anpassen'; }
+  }
+}
+
+// Coach-Verbesserungen als NEUE Plan-Version (Kopie) — Original bleibt
+async function createImprovedPlanCopy(plan, btnEl) {
+  if (!plan.coachReview?.improvements?.length) {
+    alert('Keine Verbesserungsvorschläge — erst Coach-Review laufen lassen.');
+    return;
+  }
+  if (!state.apiKey) {
+    alert('Für die Coach-Umarbeitung wird der API-Key benötigt.');
+    return;
+  }
+  if (!confirm(`Neue Plan-Version als KOPIE erstellen?\n\n— Original bleibt unverändert\n— Neue Version (v2) landet in der Plan-Liste\n— Coach prüft die neue Version automatisch\n— Du entscheidest danach: aktivieren oder beide behalten`)) return;
+  if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Coach baut um …'; }
+
+  const improvements = plan.coachReview.improvements.map(s => `- ${s}`).join('\n');
+  const planJson = JSON.stringify({ name: plan.name, goal: plan.goal, trainingsdays: plan.trainingsdays, weeks: plan.weeks });
+  const prompt = `${COACH_PERSONA_INTRO}
+
+Erstelle eine VERBESSERTE VERSION dieses Plans — die Verbesserungsvorschläge umsetzen, gleiche Wochenanzahl/Trainingstage/Ruhetage erhalten.
+
+AKTUELLER PLAN:
+${planJson}
+
+VERBESSERUNGSVORSCHLÄGE (alle umsetzen):
+${improvements}
+
+KONTEXT: Easy ${plan.basePace} km/h, längster Lauf ${plan.longestRun} km, Erfahrung "${plan.experience}", Steigung ${plan.incline}%.
+
+PFLICHT-CONSTRAINTS:
+- Long Run alle 3 Phasen identisch (p1.s = p2.s = p3.s)
+- 80/20-Polarisierung
+- Tapering Schlusswoche: −40 % Volumen, kein hartes Intervall
+
+Antworte NUR mit dem überarbeiteten Plan-JSON (Struktur: name, goal, trainingsdays, weeks). Kein Text drumherum, keine Backticks.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': state.apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-7',
+        max_tokens: 8000,
+        messages: [{ role:'user', content: prompt }]
+      })
+    });
+    if (!resp.ok) {
+      const e = await resp.json().catch(()=>({}));
+      throw new Error(e.error?.message || `API ${resp.status}`);
+    }
+    const data = await resp.json();
+    const text = data.content.find(b => b.type === 'text')?.text || '';
+    const clean = text.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+    const newPlanData = JSON.parse(clean);
+    if (!newPlanData.weeks?.length) throw new Error('Ungültige Plan-Struktur');
+
+    // Versionsnummer ableiten — wenn schon (v2)/(v3) im Namen, dann hochzählen
+    const baseName = plan.name.replace(/\s*\(v\d+\)$/, '');
+    const existingVersions = state.plans
+      .map(p => (p.name || '').match(new RegExp('^' + baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*\\(v(\\d+)\\)$')))
+      .filter(m => m).map(m => parseInt(m[1]));
+    const versionNum = (existingVersions.length ? Math.max(...existingVersions) : 1) + 1;
+    const versionedName = `${baseName} (v${versionNum})`;
+
+    const newPlan = {
+      ...newPlanData,
+      name: versionedName,
+      goal: newPlanData.goal || plan.goal,
+      id: 'plan-' + Date.now(),
+      startDate: plan.startDate,
+      basePace: plan.basePace,
+      experience: plan.experience,
+      longestRun: plan.longestRun,
+      bestTime5kSec: plan.bestTime5kSec,
+      weekdays: plan.weekdays,
+      longRunDay: plan.longRunDay,
+      raceDate: plan.raceDate,
+      environment: plan.environment,
+      restrictions: plan.restrictions,
+      incline: plan.incline,
+      sprintPace: plan.sprintPace,
+      hillTraining: plan.hillTraining,
+      warmupM: plan.warmupM,
+      cooldownM: plan.cooldownM,
+      targetPaceSecPerKm: plan.targetPaceSecPerKm,
+      basedOnPlanId: plan.id,
+      coachReview: null
+    };
+
+    state.plans.push(newPlan);
+    save();
+    closePlanEdit();
+    // Pause damit Anthropic-API nicht Race-Limited wird
+    await new Promise(r => setTimeout(r, 1500));
+    // Coach-Review SILENT — wenn er fehlt, zeigt Comparison einfach "?/10"
+    await reviewPlanWithCoach(newPlan, null, { silent: true });
+    showPlanComparisonAfterImprovement(plan.id, newPlan.id);
+  } catch(e) {
+    alert('Verbesserungs-Kopie fehlgeschlagen: ' + e.message);
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Als neue Version erstellen'; }
+  }
+}
+
+function showPlanComparisonAfterImprovement(originalId, newId) {
+  const original = state.plans.find(p => p.id === originalId);
+  const newPlan = state.plans.find(p => p.id === newId);
+  if (!original || !newPlan) return;
+
+  const origScore = original.coachReview?.overall ?? '?';
+  const newScore  = newPlan.coachReview?.overall ?? '?';
+  const isActive  = state.activePlanId === originalId;
+  const completedDays = Object.keys(state.done).filter(k => k.startsWith(originalId + '-') && state.done[k]).length;
+  const scoreColor = (s) => s >= 8 ? 'var(--green)' : s >= 6 ? 'var(--amber)' : 'var(--red)';
+
+  document.getElementById('planedit-body').innerHTML = `
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:11px;color:var(--faint);letter-spacing:0.08em;text-transform:uppercase">Verbesserte Version erstellt</div>
+      <div style="font-size:14px;color:var(--muted);margin-top:4px">${newPlan.name}</div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-bottom:18px;align-items:stretch">
+      <div style="flex:1;padding:14px 8px;background:var(--surface2);border-radius:10px;text-align:center;border:1px solid var(--border)">
+        <div style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em">Original</div>
+        <div style="font-family:'DM Mono',monospace;font-size:26px;font-weight:700;margin:6px 0;color:${scoreColor(origScore)}">${origScore}/10</div>
+        <div style="font-size:10px;color:var(--muted)">${original.name}</div>
+      </div>
+      <div style="display:flex;align-items:center;color:var(--accent);font-size:20px">→</div>
+      <div style="flex:1;padding:14px 8px;background:var(--accent-soft);border-radius:10px;text-align:center;border:2px solid var(--accent)">
+        <div style="font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:0.06em;font-weight:700">Verbessert</div>
+        <div style="font-family:'DM Mono',monospace;font-size:26px;font-weight:700;margin:6px 0;color:${scoreColor(newScore)}">${newScore}/10</div>
+        <div style="font-size:10px;color:var(--muted)">v${(newPlan.name.match(/\(v(\d+)\)/)||[])[1]||'?'}</div>
+      </div>
+    </div>
+
+    ${isActive && completedDays > 0 ? `
+      <div style="font-size:12px;color:var(--muted);line-height:1.5;padding:10px 12px;background:var(--surface2);border-radius:8px;margin-bottom:14px">
+        Du hast bereits <b style="color:var(--text)">${completedDays} Trainings</b> im aktuellen Plan abgeschlossen. Wenn du den neuen Plan aktivierst, kannst du wählen:
+        <br><br>
+        <b>Fortschritt übernehmen</b> = Erledigte Trainings + Feedback + Pace-Faktor werden auf den neuen Plan übertragen, du machst an gleicher Stelle weiter.<br>
+        <b>Neu starten</b> = Komplett bei Woche 1 anfangen, alter Plan bleibt mit seinem Fortschritt erhalten.
+      </div>
+    ` : `
+      <div style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:14px">
+        Aktivierst du den neuen Plan, ersetzt er den bisher aktiven. Originaler Plan bleibt in der Liste — kannst du jederzeit wieder aktivieren.
+      </div>
+    `}
+
+    ${isActive && completedDays > 0 ? `
+      <button class="generate-btn" style="margin-bottom:8px;background:linear-gradient(135deg,var(--afo-purple),var(--afo-orange-600));color:#fff;border:none" onclick="activateNewPlanKeepProgress('${newId}','${originalId}')">Aktivieren — Fortschritt übernehmen</button>
+      <button class="generate-btn" style="margin-bottom:8px;background:var(--surface2);color:var(--text);border:1px solid var(--border2)" onclick="activateNewPlanFresh('${newId}','${originalId}')">Aktivieren — neu bei Woche 1 starten</button>
+    ` : `
+      <button class="generate-btn" style="margin-bottom:8px;background:linear-gradient(135deg,var(--afo-purple),var(--afo-orange-600));color:#fff;border:none" onclick="activateNewPlanFresh('${newId}','${originalId}')">Neuen Plan aktivieren</button>
+    `}
+    <button class="generate-btn" style="background:transparent;color:var(--muted);border:1px solid var(--border)" onclick="closePlanEdit();showScreen('plans')">Später entscheiden — zur Plan-Liste</button>`;
+
+  document.getElementById('planedit-bg').classList.add('open');
+}
+
+function activateNewPlanKeepProgress(newId, originalId) {
+  if (!confirm('Neuen Plan aktivieren und Fortschritt vom Original übernehmen?')) return;
+  const transferKeys = (sourceObj) => {
+    if (!sourceObj) return;
+    Object.keys(sourceObj).forEach(k => {
+      if (k.startsWith(originalId + '-')) {
+        const suffix = k.slice(originalId.length);
+        sourceObj[newId + suffix] = sourceObj[k];
+      }
+    });
+  };
+  transferKeys(state.done);
+  transferKeys(state.donePace);
+  transferKeys(state.feedback);
+  if (state.currentWeek[originalId] != null) {
+    state.currentWeek[newId] = state.currentWeek[originalId];
+  }
+  state.activePlanId = newId;
+  save();
+  closePlanEdit();
+  showScreen('tracker');
+}
+
+function activateNewPlanFresh(newId, originalId) {
+  state.activePlanId = newId;
+  state.currentWeek[newId] = 0;
+  save();
+  closePlanEdit();
+  showScreen('tracker');
+}
+
+function rollbackPlanVersion(planId) {
+  const plan = state.plans.find(x => x.id === planId);
+  if (!plan?.previousVersion) return;
+  const backupDate = plan.previousVersion.backupAt ? new Date(plan.previousVersion.backupAt + 'T00:00:00').toLocaleDateString('de-DE') : 'unbekannt';
+  if (!confirm(`Vorgängerversion (Backup vom ${backupDate}) wiederherstellen?\n\nDie aktuelle Version geht verloren — kein weiteres Backup möglich.`)) return;
+  const prev = plan.previousVersion;
+  plan.weeks = prev.weeks;
+  if (prev.name) plan.name = prev.name;
+  if (prev.goal) plan.goal = prev.goal;
+  if (prev.trainingsdays) plan.trainingsdays = prev.trainingsdays;
+  plan.coachReview = prev.coachReview;
+  delete plan.previousVersion;
+  save();
+  closePlanEdit();
+  renderTracker();
+}
+
+async function extendPlanWithAI(plan) {
+  const apiKey = state.apiKey;
+  if (!apiKey) {
+    alert('Für die KI-Verlängerung wird ein API Key benötigt — leg ihn unter „Erstellen" einmal an.');
+    showScreen('create');
+    return;
+  }
+  // Letzter langer Lauf bestimmt aktuelle Distanz; nächste Distanz = +25 %
+  const tt = targetTime(plan);
+  const currentKm = tt ? tt.km : 7.5;
+  const nextKm = Math.round((currentKm * 1.25) * 2) / 2;
+  const lastWeekNr = plan.weeks[plan.weeks.length - 1].week;
+
+  const bp = plan.basePace || 8.0;
+  const sprintExplicit = (plan.sprintPace && plan.sprintPace > 0) ? parseFloat(plan.sprintPace) : null;
+  const z = {
+    easy: bp.toFixed(1),
+    p1: bp.toFixed(1),                    // Long Run alle Phasen bei E-Pace
+    p2: bp.toFixed(1),
+    p3: bp.toFixed(1),
+    tempo: (bp + 1.4).toFixed(1),         // T-Pace nach Daniels
+    intervall: (bp + 2.2).toFixed(1),     // I-Pace nach Daniels
+    sprint: (sprintExplicit != null ? sprintExplicit : (bp + 3.0)).toFixed(1),
+    trab: Math.max(5.0, bp - 1.5).toFixed(1)
+  };
+  const incl = plan.incline ?? 1;
+  const hillNote = plan.hillTraining ? ` Hill-Training aktiv: 1 Hill-Session in den 3 neuen Wochen einbauen, Notation " ↗ X%" am Ende der Pace-Zeile (3-5%).` : '';
+  const envHint = plan.environment === 'outdoor' ? 'OUTDOOR — kinomap immer null.' : (plan.environment === 'indoor' ? 'INDOOR — Kinomap-Strecke beim langen Lauf.' : 'MIX — Kinomap nur beim langen Lauf.');
+  const restrictHint = plan.restrictions ? `\nVerletzungen/Beschwerden: ${plan.restrictions} → entsprechend modifizieren.` : '';
+  const prompt = `Verlängere einen bestehenden Lauf-Trainingsplan um 3 Wochen.
+
+Aktueller Plan zielt auf ${currentKm} km. Neue Zieldistanz: ${nextKm} km. Erholung + linearer Aufbau über 3 Wochen.
+Trainingstage: ${plan.trainingsdays || (plan.weekdays || ['Mo','Mi','Fr','Sa']).join(', ')}
+Langer Lauf an: ${plan.longRunDay || 'Sa'}
+Letzte Wochennummer im Plan: ${lastWeekNr}. Die 3 neuen Wochen tragen ${lastWeekNr+1}, ${lastWeekNr+2}, ${lastWeekNr+3}.
+Umgebung: ${envHint} Laufband-Steigung: ${incl}% (NICHT in paces erwähnen).${hillNote}${restrictHint}
+Pace-Zonen RELATIV zum Easy-Tempo (${bp.toFixed(1)} km/h):
+Easy ${z.easy} · Lang p1 ${z.p1} · Lang p2 ${z.p2} · Lang p3 ${z.p3} · Tempo ${z.tempo} · Intervall ${z.intervall} · Sprint ${z.sprint} · Trabpause ${z.trab} · Warm-up/Cool-down 400m bei ${z.easy}.
+
+Antworte NUR mit validem JSON (Array von 3 Wochen-Objekten, kein Text drumherum, keine Backticks):
+
+[
+  { "week": ${lastWeekNr+1}, "focus": "...", "days": [
+    { "tag":"Mo", "type":"intervall", "title":"...", "paces":["..."], "kinomap":null, "lang":null },
+    { "tag":"Mi", "type":"tempo", ... },
+    { "tag":"Fr", "type":"easy", ... },
+    { "tag":"Sa", "type":"lang", "title":"X,X km — Kinomap: Stadt",
+      "paces":null,
+      "kinomap":{"city":"...","search":"...","tip":"..."},
+      "lang":{"p1":{"km":"X,X km","s":"8.4"},"p2":{"km":"X,X km","s":"9.0"},"p3":{"km":"X,X km","s":"9.5"}} },
+    { "tag":"So", "type":"rest", "title":"Ruhetag", "paces":null, "kinomap":null, "lang":null }
+  ]},
+  ...
+]`;
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-opus-4-7',
+      max_tokens: 4000,
+      messages: [{ role:'user', content: prompt }]
+    })
+  });
+  if (!resp.ok) {
+    const e = await resp.json().catch(() => ({}));
+    throw new Error(e.error?.message || `API ${resp.status}`);
+  }
+  const data = await resp.json();
+  const text = data.content.find(b => b.type === 'text')?.text || '';
+  const clean = text.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+  const newWeeks = JSON.parse(clean);
+  if (!Array.isArray(newWeeks) || !newWeeks.length) throw new Error('KI-Antwort unvollständig');
+  plan.weeks.push(...newWeeks);
+  // Plan-Name evtl. erweitern
+  plan.name = plan.name.replace(/\d+(?:[.,]\d+)?\s*km/, `${nextKm.toString().replace('.',',')} km`);
+  if (state.coachDismiss) Object.keys(state.coachDismiss).forEach(k => { if (k.startsWith(plan.id + '-')) delete state.coachDismiss[k]; });
+  save();
+  renderTracker();
+}
+
+// Migration: Default-Plan und alte Pläne ohne startDate / basePace etc. bekommen Defaults
+function ensurePlanDefaults() {
+  let dirty = false;
+  state.plans.forEach(p => {
+    if (!p.startDate)    { p.startDate = snapToMonday(todayISO()); dirty = true; }
+    if (p.basePace == null)   { p.basePace = 8.0; dirty = true; }
+    if (!p.weekdays)     { p.weekdays = inferWeekdays(p); dirty = true; }
+    if (!p.longRunDay)   { p.longRunDay = inferLongRunDay(p); dirty = true; }
+    if (p.environment == null)  { p.environment = 'mix'; dirty = true; }
+    if (p.restrictions == null) { p.restrictions = ''; dirty = true; }
+    if (p.raceDate === undefined) { p.raceDate = null; dirty = true; }
+    if (p.incline == null) { p.incline = 1; dirty = true; }
+    if (p.sprintPace === undefined) { p.sprintPace = null; dirty = true; }   // null = abgeleitet aus basePace
+    if (p.hillTraining == null) { p.hillTraining = false; dirty = true; }
+    if (p.experience == null) { p.experience = 'recreational'; dirty = true; }
+    if (p.longestRun == null) { p.longestRun = 5; dirty = true; }
+    if (p.bestTime5kSec === undefined) { p.bestTime5kSec = null; dirty = true; }
+    if (p.warmupM == null)  { p.warmupM = 400; dirty = true; }
+    if (p.cooldownM == null){ p.cooldownM = 400; dirty = true; }
+    if (p.targetPaceSecPerKm === undefined) { p.targetPaceSecPerKm = null; dirty = true; }
+    // Migration: Zieldistanz aus letztem lang-Lauf ableiten falls fehlt
+    if (p.distance == null) {
+      let maxLangKm = 0;
+      p.weeks?.forEach(w => w.days?.forEach(d => {
+        if (d.lang) {
+          const sum = ['p1','p2','p3'].reduce((acc, k) => {
+            const m = String(d.lang[k]?.km || '').match(/(\d+(?:[.,]\d+)?)/);
+            return acc + (m ? parseFloat(m[1].replace(',','.')) : 0);
+          }, 0);
+          if (sum > maxLangKm) maxLangKm = sum;
+        }
+      }));
+      if (maxLangKm > 0) { p.distance = Math.round((maxLangKm / 1.2) * 2) / 2; dirty = true; }
+    }
+  });
+  if (dirty) save();
+}
+const ensurePlanDates = ensurePlanDefaults; // Backwards-Kompatibilität
+
+function inferWeekdays(plan) {
+  if (!plan.weeks?.length) return ['Mo','Mi','Fr','Sa'];
+  const tags = new Set();
+  plan.weeks[0].days.forEach(d => { if (d.type !== 'rest') tags.add(d.tag); });
+  const order = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+  return order.filter(t => tags.has(t));
+}
+function inferLongRunDay(plan) {
+  if (!plan.weeks?.length) return 'Sa';
+  for (const w of plan.weeks) {
+    for (const d of w.days) if (d.type === 'lang') return d.tag;
+  }
+  return inferWeekdays(plan).slice(-1)[0] || 'Sa';
+}
+
+// ─── Tracker ─────────────────────────────────────────────────────────────
+function renderTracker() {
+  const el = document.getElementById('tracker-content');
+  const plan = state.plans.find(p => p.id === state.activePlanId);
+  if (!plan) {
+    el.innerHTML = `<div class="no-plan">
+      <div class="no-plan-icon" style="display:flex;justify-content:center;color:var(--muted)">${icon('activity', 56, {strokeWidth:1.5})}</div>
+      <div class="no-plan-text">Kein aktiver Plan</div>
+      <div class="no-plan-sub">Erstelle deinen ersten Trainingsplan</div>
+      <button class="no-plan-btn" onclick="showScreen('create')" style="display:inline-flex;align-items:center;gap:8px">${icon('sparkles', 16)}<span>Plan erstellen</span></button>
+    </div>`;
+    return;
+  }
+
+  const wIdx = state.currentWeek[plan.id] || 0;
+  const w = plan.weeks[wIdx];
+  const { total, done, pct } = planProgress(plan);
+
+  // Count non-rest days done this week
+  let nonRestIdx = 0;
+  const wTotal = w.days.filter(d=>d.type!=='rest').length;
+  const wDone = w.days.filter((d,i) => {
+    if (d.type==='rest') return false;
+    const ni = nonRestIdx++;
+    return !!state.done[`${plan.id}-${wIdx}-${ni}`];
+  }).length;
+
+  // Week tabs
+  const weekTabs = plan.weeks.map((wk,i) => {
+    const wkNR = wk.days.filter(d=>d.type!=='rest').length;
+    let wkDone = 0;
+    wk.days.forEach((d,di) => { if(d.type!=='rest' && state.done[`${plan.id}-${i}-${di}`]) wkDone++; });
+    const complete = wkDone === wkNR;
+    return `<button class="week-tab ${i===wIdx?'active':''} ${complete&&i!==wIdx?'complete':''}" onclick="setWeek('${plan.id}',${i})">
+      Wo. ${wk.week}${complete&&i!==wIdx?'<span class="wk-dot"></span>':''}
+    </button>`;
+  }).join('');
+
+  // Day cards
+  const today = todayTag();
+  const todayDate = new Date();
+  const pf = paceFactor(plan);
+  let nri = 0;
+  const dayCards = w.days.map((d) => {
+    const dDate = dayDate(plan, wIdx, d.tag);
+    const dDateStr = dDate ? fmtShort(dDate) : '';
+    const isToday = dDate ? isSameDate(dDate, todayDate) : (d.tag === today);
+    if (d.type === 'rest') return `
+      <div class="day-card rest ${isToday?'today':''}">
+        <div class="day-main">
+          <div class="check" style="border-color:var(--faint)">—</div>
+          <div class="day-body">
+            <div class="badge-row"><span class="badge b-rest">${d.tag}${dDateStr?' · '+dDateStr:''}</span></div>
+            <div class="day-title">${d.title}</div>
+          </div>
+        </div>
+      </div>`;
+
+    const idx = nri++;
+    const dKey = `${plan.id}-${wIdx}-${idx}`;
+    const isDone = !!state.done[dKey];
+    // Erledigte Tage nutzen den eingefrorenen Faktor — Tempo-Änderungen wirken nur auf zukünftige
+    const dpf = isDone ? ((state.donePace && state.donePace[dKey] != null) ? state.donePace[dKey] : 1.0) : pf;
+    const planIncline = plan.incline ?? 1;
+    const paces = d.paces ? renderPaceTable(d.paces, planIncline, dpf, plan.basePace) : '';
+    const langBlock = d.lang ? renderLangTable(d.lang, planIncline, dpf) : '';
+    const kinoBlock = d.kinomap ? `
+      <div class="kinomap-box">
+        <div class="kino-head" style="color:var(--accent)">${icon('play', 13)}<span class="kino-tag">Kinomap</span></div>
+        <div class="kino-city">${d.kinomap.city}</div>
+        <span class="kino-search">${d.kinomap.search}</span>
+        <div class="kino-tip">${d.kinomap.tip}</div>
+      </div>` : '';
+
+    const fbVal = state.feedback?.[dKey] || null;
+    const fbBlock = isDone ? `
+      <div class="fb-row" onclick="event.stopPropagation()">
+        <span class="fb-lbl">War's:</span>
+        <button class="fb-pill act-easy ${fbVal==='easy'?'on':''}" onclick="setFeedback('${plan.id}',${wIdx},${idx},'easy')">${icon('coffee',12)}<span>easy</span></button>
+        <button class="fb-pill act-ok ${fbVal==='ok'?'on':''}" onclick="setFeedback('${plan.id}',${wIdx},${idx},'ok')">${icon('check',12)}<span>passt</span></button>
+        <button class="fb-pill act-hard ${fbVal==='hard'?'on':''}" onclick="setFeedback('${plan.id}',${wIdx},${idx},'hard')">${icon('flame',12)}<span>hart</span></button>
+      </div>` : '';
+
+    return `
+      <div class="day-card ${isDone?'done':''} ${isToday?'today':''}">
+        <div class="day-main" onclick="toggleDone('${plan.id}',${wIdx},${idx})">
+          <div class="check">
+            <svg class="check-icon" width="12" height="9" viewBox="0 0 12 9" fill="none">
+              <path d="M1 4.5L4.5 8L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="day-body">
+            <div class="badge-row"><span class="badge ${badgeClass(d.type)}">${d.tag}${dDateStr?' · '+dDateStr:''} · ${badgeLabel(d.type)}</span></div>
+            <div class="day-title">${d.title}</div>
+            ${paces}${langBlock}${fbBlock}
+          </div>
+        </div>
+        ${kinoBlock}
+      </div>`;
+  }).join('');
+
+  const pStart = planStart(plan);
+  const pEnd = planEnd(plan);
+  const planRange = (pStart && pEnd) ? `${fmtShort(pStart)} – ${fmtFull(pEnd)} · ${plan.weeks.length} Wochen` : `${plan.weeks.length} Wochen`;
+  const wStart = pStart ? dayDate(plan, wIdx, 'Mo') : null;
+  const wEnd = pStart ? dayDate(plan, wIdx, 'So') : null;
+  const weekRange = (wStart && wEnd) ? ` · ${fmtShort(wStart)} – ${fmtShort(wEnd)}` : '';
+
+  el.innerHTML = `
+    <div style="padding:52px 152px 12px 20px;position:sticky;top:0;background:var(--header-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:10">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div>
+          <div style="font-size:20px;font-weight:600">${plan.name}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">${plan.goal}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--faint);margin-top:4px">${planRange}</div>
+          ${plan.coachReview ? `<button onclick="showCoachReview(state.plans.find(p=>p.id==='${plan.id}'))" style="margin-top:8px;display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:${plan.coachReview.overall>=7?'var(--green)':plan.coachReview.overall>=5?'var(--amber)':'var(--red)'};font-family:'DM Mono',monospace;font-size:11px;font-weight:700;cursor:pointer">Coach: ${plan.coachReview.overall}/10</button>` : `<button onclick="reviewPlanWithCoach(state.plans.find(p=>p.id==='${plan.id}'),this)" style="margin-top:8px;display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:6px;border:1px dashed var(--border2);background:transparent;color:var(--muted);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer">Coach-Review starten</button>`}
+        </div>
+        <div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:600;color:var(--green)">${pct}%</div>
+      </div>
+      <div style="height:3px;background:var(--surface2);border-radius:2px;margin-bottom:12px">
+        <div style="height:100%;background:var(--green);border-radius:2px;width:${pct}%;transition:width 0.4s"></div>
+      </div>
+      <div class="week-scroll">${weekTabs}</div>
+    </div>
+    ${(() => {
+      const tt = targetTime(plan);
+      const goalLine = tt
+        ? `<div class="pace-goal-val">${(Math.round(tt.km * 10) / 10).toString().replace('.',',')} km in ${fmtMmSs(tt.minutes)} min</div>
+           <div class="pace-goal-sub">Ø ${fmtPace(tt.pacePerKm)} min/km · ${tt.source}</div>`
+        : `<div class="pace-goal-val" style="color:var(--muted);font-size:13px">Zieldistanz nicht hinterlegt — bearbeite den Plan</div>`;
+      return `
+      <div class="pace-card">
+        <div class="pace-goal">
+          <div class="pace-goal-lbl">Ziel am Ende</div>
+          ${goalLine}
+        </div>
+        <div class="pace-ctrl">
+          <div class="pace-ctrl-lbl">Tempo</div>
+          <div class="pace-ctrl-row">
+            <button class="pace-ctrl-btn" onclick="adjustPace('${plan.id}',-0.05)" aria-label="Tempo verringern">−</button>
+            <div class="pace-ctrl-val">${fmtFactor(pf)}</div>
+            <button class="pace-ctrl-btn" onclick="adjustPace('${plan.id}',0.05)" aria-label="Tempo erhöhen">+</button>
+            <button class="pace-ctrl-btn" onclick="setPaceFactor('${plan.id}',1.0)" aria-label="Tempo zurücksetzen" style="color:var(--muted);display:inline-flex;align-items:center;justify-content:center">${icon('rotateCcw',13)}</button>
+          </div>
+          ${Math.abs(pf - 1.0) > 0.001 ? `<button class="pace-bake" onclick="bakeInPace('${plan.id}')" title="Aktuelles Tempo dauerhaft als Standard speichern">${icon('check',11)}<span>Als Standard übernehmen</span></button>` : ''}
+        </div>
+      </div>`;
+    })()}
+    ${(() => {
+      const sug = coachSuggest(plan);
+      if (!sug) return '';
+      window._currentSug = sug;
+      return `
+      <div class="coach">
+        <div class="coach-head"><span class="coach-tag">${sug.tag}</span></div>
+        <div class="coach-title">${sug.title}</div>
+        <div class="coach-text">${sug.text}</div>
+        <div class="coach-actions">
+          <button class="coach-btn primary" onclick="applySuggestion(state.plans.find(p=>p.id==='${plan.id}'), window._currentSug, this)">${sug.primary}</button>
+          <button class="coach-btn" onclick="dismissSuggestion('${plan.id}','${sug.id}')">Ignorieren</button>
+        </div>
+      </div>`;
+    })()}
+    <div class="week-summary">
+      <div class="wsm-item"><div class="wsm-num" style="color:var(--accent)">${wDone}</div><div class="wsm-label">erledigt</div></div>
+      <div class="wsm-item" style="border-left:1px solid var(--border)"><div class="wsm-num">${wTotal-wDone}</div><div class="wsm-label">offen</div></div>
+      <div class="wsm-item" style="border-left:1px solid var(--border)"><div class="wsm-num" style="color:var(--green)">${wTotal?Math.round(wDone/wTotal*100):0}%</div><div class="wsm-label">Woche ${w.week}</div></div>
+      <div class="wsm-item" style="border-left:1px solid var(--border);cursor:pointer" onclick="resetWeek('${plan.id}',${wIdx})"><div class="wsm-num" style="display:flex;justify-content:center;color:var(--faint)">${icon('rotateCcw', 18)}</div><div class="wsm-label">Reset</div></div>
+    </div>
+    <div class="wk-header"><div class="wk-title">Woche ${w.week} <span style="color:var(--muted);font-weight:400">von ${plan.weeks.length}</span><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--faint);font-weight:400">${weekRange}</span></div><div class="wk-focus">${w.focus}</div></div>
+    <div class="days">${dayCards}</div>
+    <div style="height:20px"></div>`;
+}
+
+function setWeek(planId, wIdx) {
+  state.currentWeek[planId] = wIdx;
+  save();
+  renderTracker();
+  document.getElementById('screen-tracker').scrollTo({top:0,behavior:'smooth'});
+}
+
+function resetWeek(planId, wIdx) {
+  if (!confirm(`Woche ${wIdx+1} zurücksetzen?`)) return;
+  const prefix = `${planId}-${wIdx}-`;
+  Object.keys(state.done).forEach(k => { if(k.startsWith(prefix)) delete state.done[k]; });
+  if (state.donePace) Object.keys(state.donePace).forEach(k => { if(k.startsWith(prefix)) delete state.donePace[k]; });
+  if (state.feedback) Object.keys(state.feedback).forEach(k => { if(k.startsWith(prefix)) delete state.feedback[k]; });
+  save();
+  renderTracker();
+}
+
+function toggleDone(planId, wIdx, dayIdx) {
+  const key = `${planId}-${wIdx}-${dayIdx}`;
+  state.done[key] = !state.done[key];
+  if (!state.donePace) state.donePace = {};
+  if (state.done[key]) {
+    const p = state.plans.find(x => x.id === planId);
+    state.donePace[key] = paceFactor(p);
+  } else {
+    delete state.donePace[key];
+  }
+  save();
+  renderTracker();
+}
+
+// ─── Plans ────────────────────────────────────────────────────────────────
+function renderPlans() {
+  document.getElementById('plans-subtitle').textContent = `${state.plans.length} Plan${state.plans.length!==1?'e':''}`;
+  if (!state.plans.length) {
+    document.getElementById('plans-list').innerHTML = `<div class="empty"><div class="empty-icon" style="display:flex;justify-content:center;color:var(--faint)">${icon('list',44,{strokeWidth:1.5})}</div><div class="empty-text">Noch keine Pläne</div><div class="empty-sub">Erstelle deinen ersten Plan</div></div>`;
+    return;
+  }
+  document.getElementById('plans-list').innerHTML = state.plans.map(plan => {
+    const { total, done, pct } = planProgress(plan);
+    const isActive = plan.id === state.activePlanId;
+    const ps = planStart(plan), pe = planEnd(plan);
+    const range = (ps && pe) ? `${fmtShort(ps)} – ${fmtFull(pe)}` : `${plan.weeks.length} Wochen`;
+    return `
+      <div class="plan-item ${isActive?'active-plan':''}">
+        <div class="plan-item-top">
+          <div class="plan-item-name">${plan.name}</div>
+          ${isActive?'<span class="plan-active-badge">Aktiv</span>':''}
+        </div>
+        <div class="plan-item-meta">${range} · ${plan.weeks.length} Wo · ${plan.goal}</div>
+        <div class="plan-progress-track"><div class="plan-progress-fill" style="width:${pct}%"></div></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:5px;gap:8px">
+          <div style="font-size:11px;color:var(--muted)">${done} von ${total} Läufen · ${pct}%</div>
+          ${plan.coachReview ? `<button onclick="event.stopPropagation();showCoachReview(state.plans.find(p=>p.id==='${plan.id}'))" style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);color:${plan.coachReview.overall>=7?'var(--green)':plan.coachReview.overall>=5?'var(--amber)':'var(--red)'};font-family:'DM Mono',monospace;font-size:10px;font-weight:700;cursor:pointer">Coach ${plan.coachReview.overall}/10</button>` : ''}
+        </div>
+        <div class="plan-actions">
+          ${!isActive
+            ? `<button class="plan-btn primary-btn" onclick="activatePlan('${plan.id}')">${icon('power',13)}<span>Aktivieren</span></button>`
+            : `<button class="plan-btn" onclick="deactivatePlan()">${icon('power',13)}<span>Deaktivieren</span></button>`}
+          <button class="plan-btn" onclick="openPlanEdit('${plan.id}')">${icon('edit',13)}<span>Bearbeiten</span></button>
+          <button class="plan-btn danger-btn" onclick="deletePlan('${plan.id}')">${icon('trash',13)}<span>Löschen</span></button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function activatePlan(id) {
+  state.activePlanId = id;
+  if (!state.currentWeek[id]) state.currentWeek[id] = 0;
+  save();
+  renderPlans();
+}
+
+function deactivatePlan() {
+  state.activePlanId = null;
+  save();
+  renderPlans();
+}
+
+// ─── Plan bearbeiten ─────────────────────────────────────────────────────
+function openPlanEdit(id) {
+  const p = state.plans.find(x => x.id === id);
+  if (!p) return;
+  const envOpts = [['mix','Mix (Indoor + Outdoor)'],['indoor','Nur Laufband'],['outdoor','Nur Outdoor']];
+  const expOpts = [['beginner','Neu / unter 1 Jahr'],['recreational','1–3 Jahre regelmäßig'],['experienced','3+ Jahre, kennt Trainingspläne'],['competitive','Wettkampf-erfahren']];
+  const btMinVal = p.bestTime5kSec ? Math.floor(p.bestTime5kSec / 60) : '';
+  const btSecVal = p.bestTime5kSec ? (p.bestTime5kSec % 60) : '';
+  const tpMinVal = p.targetPaceSecPerKm ? Math.floor(p.targetPaceSecPerKm / 60) : '';
+  const tpSecVal = p.targetPaceSecPerKm ? (p.targetPaceSecPerKm % 60) : '';
+  document.getElementById('planedit-body').innerHTML = `
+    <input type="hidden" id="pe-id" value="${id}">
+
+    <div class="form-group">
+      <label class="form-label">Plan-Name</label>
+      <input type="text" class="form-input" id="pe-name" value="${(p.name||'').replace(/"/g,'&quot;')}">
+      <div class="pe-help">Erscheint im Tracker oben, in der Plan-Liste und in der Theme-Übersicht. Frei wählbar.</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Lauferfahrung</label>
+      <select class="form-select" id="pe-experience">
+        ${expOpts.map(([v,l]) => `<option value="${v}" ${(p.experience||'recreational')===v?'selected':''}>${l}</option>`).join('')}
+      </select>
+      <div class="pe-help">Bestimmt bei KI-Verlängerungen die Trainingsdichte und ob Sprint-Einheiten erlaubt sind. „Neu" bekommt Strides statt Sprints.</div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Längster Lauf (km)</label>
+        <input type="text" inputmode="decimal" pattern="[0-9.,]*" step="0.5" min="0" max="50" class="form-input" id="pe-longestrun" value="${p.longestRun||5}">
+        <div class="pe-help">Aktueller Stand — Long-Run-Startdistanz bei Verlängerung = ~70 % davon.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">5 km Bestzeit</label>
+        <div class="time-input">
+          <input type="text" inputmode="decimal" pattern="[0-9.,]*" min="10" max="60" class="form-input" id="pe-besttime-min" value="${btMinVal}" placeholder="Min">
+          <span class="time-sep">:</span>
+          <input type="text" inputmode="decimal" pattern="[0-9.,]*" min="0" max="59" class="form-input" id="pe-besttime-sec" value="${btSecVal}" placeholder="Sek">
+        </div>
+        <div class="pe-help">Definiert Pace-Zonen exakt nach Daniels VDOT — schärft die KI-Logik.</div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Easy-Tempo (km/h)</label>
+        <input type="text" inputmode="decimal" pattern="[0-9.,]*" step="0.1" min="5" max="15" class="form-input" id="pe-basepace" value="${p.basePace||8.0}">
+        <div class="pe-help"><b>Echtes Easy</b> = 60–90 Min am Stück laufen + reden können. Bei 5k-Bestzeit X min beträgt Easy ~ (300/X) − 2 km/h. Beispiel: 5k in 30 min → Easy ~8,0 km/h. Skaliert alle Plan-Pace-Werte linear.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Startdatum (Mo)</label>
+        <input type="date" class="form-input" id="pe-startdate" value="${p.startDate||snapToMonday(todayISO())}">
+        <div class="pe-help">Snappt automatisch auf Montag.</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Zielpace am Plan-Ende (optional)</label>
+      <div class="time-input">
+        <input type="text" inputmode="decimal" pattern="[0-9]*" class="form-input" id="pe-targetpace-min" value="${tpMinVal}" placeholder="Min">
+        <span class="time-sep">:</span>
+        <input type="text" inputmode="decimal" pattern="[0-9]*" class="form-input" id="pe-targetpace-sec" value="${tpSecVal}" placeholder="Sek">
+        <span style="display:flex;align-items:center;font-size:12px;color:var(--muted);margin-left:6px">/km</span>
+      </div>
+      <div class="pe-help">Konkrete Zielpace für den Schluss-Zieltest. Wirkt bei Coach-Review und KI-Verlängerung.</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Wettkampftermin (optional)</label>
+      <input type="date" class="form-input" id="pe-racedate" value="${p.raceDate||''}">
+      <div class="pe-help">Wenn gesetzt: Startdatum wird AUTOMATISCH so gewählt, dass dein Plan exakt am Wettkampftag endet. Die letzte Woche wird zur Tapering-Phase (reduziertes Volumen, kein hartes Intervall, frische Beine).</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Trainingsumgebung</label>
+      <select class="form-select" id="pe-env">
+        ${envOpts.map(([v,l]) => `<option value="${v}" ${(p.environment||'mix')===v?'selected':''}>${l}</option>`).join('')}
+      </select>
+      <div class="pe-help">Wirkt bei KI-Verlängerungen: Outdoor unterdrückt Kinomap, Indoor bekommt für jeden langen Lauf eine Stadtstrecke, Mix nur am langen Lauf.</div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Laufband-Steigung (%)</label>
+        <input type="text" inputmode="decimal" pattern="[0-9.,]*" min="0" max="15" step="0.5" class="form-input" id="pe-incline" value="${p.incline ?? 1}">
+        <div class="pe-help">Wird in jedem Pace-Chip im Tracker angezeigt (↗ X %). Standard 1 % gleicht fehlenden Luftwiderstand vs. Outdoor aus. Höher (z.B. 1,5 %) = realistischere Outdoor-Übertragung.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sprint-Tempo (km/h)</label>
+        <input type="text" inputmode="decimal" pattern="[0-9.,]*" min="8" max="22" step="0.1" class="form-input" id="pe-sprintpace" value="${p.sprintPace || ''}" placeholder="auto">
+        <div class="pe-help">Sprint-Tempo skaliert NICHT linear mit Easy. Hier kannst du dein realistisches Sprint-Maximum eingeben — wirkt bei NEUEN Sessions (Hill-Training, KI-Verlängerung). Leer = wird aus Easy abgeleitet (~+2,2).</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="wd-pill" style="display:flex;align-items:center;justify-content:flex-start;gap:10px;text-align:left;padding:10px 14px;width:100%;color:var(--text)">
+        <input type="checkbox" id="pe-hill" ${p.hillTraining?'checked':''} style="opacity:1;position:static;pointer-events:auto;width:16px;height:16px;accent-color:var(--accent)">
+        <span style="font-weight:500">Hill-Training einbauen</span>
+      </label>
+      <div class="pe-help">Wenn aktiv, baut die KI bei der nächsten Verlängerung 1–2 Hill-Sessions ein (3–6 % Steigung am Laufband, simuliert Bergsprints/Hill Repeats).</div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Warm-up (m)</label>
+        <input type="text" inputmode="decimal" pattern="[0-9]*" class="form-input" id="pe-warmup" value="${p.warmupM ?? 400}">
+        <div class="pe-help">Einlaufen vor harten Einheiten bei Easy-Pace. 800 m Standard.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cool-down (m)</label>
+        <input type="text" inputmode="decimal" pattern="[0-9]*" class="form-input" id="pe-cooldown" value="${p.cooldownM ?? 400}">
+        <div class="pe-help">Auslaufen nach harten Einheiten. 600 m Standard.</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Verletzungen / Beschwerden</label>
+      <textarea class="form-textarea" id="pe-restrictions" style="height:60px">${p.restrictions||''}</textarea>
+      <div class="pe-help">Freitext für die KI bei Verlängerungen. Beispiele: „linkes Knie reizbar — keine Sprints, längere Pausen"; „Achillessehne empfindlich — nur weiche Pace-Übergänge". Bleibt leer wenn nichts.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="color:var(--faint)">Trainingstage / Wochenanzahl</label>
+      <div style="font-size:11px;color:var(--muted);background:var(--surface2);padding:8px 10px;border-radius:8px">
+        ${(p.weekdays||['Mo','Mi','Fr','Sa']).join(' · ')} · ${p.weeks?.length||0} Wochen · Langer Lauf: ${p.longRunDay||'Sa'}<br>
+        <span style="color:var(--faint);font-size:10px">Diese Plan-Struktur lässt sich nicht ohne neuen Plan ändern.</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:18px">
+      <button class="generate-btn" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2)" onclick="closePlanEdit()">Abbrechen</button>
+      <button class="generate-btn" onclick="savePlanEdit()">Speichern</button>
+    </div>`;
+  document.getElementById('planedit-bg').classList.add('open');
+}
+
+function closePlanEdit() {
+  document.getElementById('planedit-bg').classList.remove('open');
+}
+
+function savePlanEdit() {
+  const id = document.getElementById('pe-id').value;
+  const p = state.plans.find(x => x.id === id);
+  if (!p) return;
+  const oldBase = p.basePace || 8.0;
+  const newBase = numFromInput('pe-basepace') || 8.0;
+
+  p.name         = document.getElementById('pe-name').value.trim() || p.name;
+  p.environment  = document.getElementById('pe-env').value;
+  p.restrictions = document.getElementById('pe-restrictions').value;
+  p.raceDate     = document.getElementById('pe-racedate').value || null;
+  p.incline      = numFromInput('pe-incline');
+  if (isNaN(p.incline)) p.incline = 1;
+  const spVal    = numFromInput('pe-sprintpace');
+  p.sprintPace   = (spVal > 0 ? spVal : null);
+  p.hillTraining = document.getElementById('pe-hill').checked;
+  p.warmupM    = Math.max(200, Math.min(2000, numFromInput("pe-warmup") || 400));
+  p.cooldownM  = Math.max(200, Math.min(2000, numFromInput("pe-cooldown") || 400));
+  const peTpMin = numFromInput('pe-targetpace-min');
+  const peTpSec = numFromInput('pe-targetpace-sec');
+  p.targetPaceSecPerKm = (peTpMin > 0) ? (peTpMin * 60 + (peTpSec || 0)) : null;
+  p.experience   = document.getElementById('pe-experience').value;
+  p.longestRun   = numFromInput('pe-longestrun') || 0;
+  const peBtMin  = numFromInput('pe-besttime-min');
+  const peBtSec  = numFromInput('pe-besttime-sec');
+  p.bestTime5kSec = (peBtMin > 0) ? (peBtMin * 60 + (peBtSec || 0)) : null;
+
+  // Wettkampftermin → Startdatum nachjustieren (so dass Plan am Termin endet)
+  let startDate = document.getElementById('pe-startdate').value;
+  if (p.raceDate && p.weeks?.length) {
+    const rd = new Date(p.raceDate + 'T00:00:00');
+    const sc = new Date(rd);
+    sc.setDate(sc.getDate() - (p.weeks.length * 7 - 1));
+    const y = sc.getFullYear(), m = String(sc.getMonth()+1).padStart(2,'0'), dd = String(sc.getDate()).padStart(2,'0');
+    startDate = snapToMonday(`${y}-${m}-${dd}`);
+  } else if (startDate) {
+    startDate = snapToMonday(startDate);
+  }
+  p.startDate = startDate || p.startDate;
+
+  // basePace-Änderung wirkt über paceFactor (alter pf bleibt erhalten)
+  if (Math.abs(newBase - oldBase) > 0.01) {
+    const oldFactor = paceFactor(p);
+    p.basePace = newBase;
+    p.paceFactor = oldFactor * (newBase / oldBase);
+  }
+
+  save();
+  closePlanEdit();
+  renderPlans();
+  if (id === state.activePlanId) renderTracker();
+}
+
+function deletePlan(id) {
+  if (!confirm('Plan wirklich löschen?')) return;
+  state.plans = state.plans.filter(p => p.id !== id);
+  // Clear done/feedback entries for this plan
+  Object.keys(state.done).forEach(k => { if(k.startsWith(id+'-')) delete state.done[k]; });
+  if (state.donePace) Object.keys(state.donePace).forEach(k => { if(k.startsWith(id+'-')) delete state.donePace[k]; });
+  if (state.feedback) Object.keys(state.feedback).forEach(k => { if(k.startsWith(id+'-')) delete state.feedback[k]; });
+  if (state.coachDismiss) Object.keys(state.coachDismiss).forEach(k => { if(k.startsWith(id+'-')) delete state.coachDismiss[k]; });
+  if (state.activePlanId === id) state.activePlanId = state.plans.length ? state.plans[0].id : null;
+  save();
+  renderPlans();
+}
+
+// ─── Create ───────────────────────────────────────────────────────────────
+// ─── ZENTRALE COACH-METHODIK ───────────────────────────────────────────────
+// Diese Konstante ist die EINZIGE Quelle der Wahrheit für Lauf-Methodik.
+// Sowohl der Plan-Generator als auch der Plan-Reviewer nutzen sie.
+const COACH_PERSONA_INTRO = `Du bist ein erfahrener Lauftrainer mit Schwerpunkt evidenzbasierter Trainingssteuerung. Du arbeitest strikt nach:
+- Jack Daniels Running Formula (VDOT-Pace-Zonen E/M/T/I/R)
+- Stephen Seiler Polarisiertes Training (80/20-Verteilung)
+- Arthur Lydiard Pyramide (Aerobe Basis → Hill → Anaerobic → Tapering)
+- ACSM 10%-Regel und Gabbett ACWR 0,8-1,3 für Verletzungsprävention
+
+Du erstellst KEINE Pläne, die methodisch fragwürdig sind. Du beschönigst nicht.`;
+
+const COACH_HARD_RULES = (zones, longRunDay, otherTrainDays, isBeginner, targetKm, maxLongRun, goal) => `
+PFLICHT-TRAININGSPRINZIPIEN (BEI VERLETZUNG IST DER PLAN UNGÜLTIG):
+
+1. **80/20-Polarisierung (Seiler) — STRIKT:** ≥80 % der Wochen-Distanz im Easy-Bereich (E-Pace = ${zones.easy} km/h), max 20 % im Threshold/I/R-Bereich.
+   → Bei Goal "${goal}":
+     • "comfort" (festigen): MAX 1 Quality-Session pro Woche. Wenn ZIELPACE gesetzt: diese 1 Session in Zielpace (Tempo-Reiz, KEIN Wettkampf). Sonst rein aerob.
+     • "reach" (erstmals schaffen): MAX 1 Quality-Session pro Woche, Fokus aerobe Basis + Long-Run-Aufbau
+     • "race" (Bestzeit): MAX 2 Quality-Sessions pro Woche, Race-Pace-Blöcke ok ab Hälfte des Plans
+   → "Quality-Session" = Tempo, Intervall, Race-Pace-Block, Hill Repeats. Easy + Strides zählen NICHT als Quality.
+   → Wenn ein Long Run >50 % der Zieldistanz vorkommt, in DIESER Woche maximal 1 Quality-Session.
+
+2. **Long Run KOMPLETT bei Easy-Pace (E-Pace ${zones.easy} km/h) — kein M-Pace, kein Tempo-Drift, kein Stufentempo:**
+   → ALLE drei Phasen (p1, p2, p3) bei ${zones.p1} km/h GLEICHMÄSSIG (= EXAKT Easy-Pace, NICHT schneller).
+   → Long Run NIE über ${maxLongRun} km (= 1,2× Zieldistanz)
+   → Long Run max 30 % des Wochenvolumens
+   → Long Run dient ausschließlich der aeroben Basis, NIE als Tempo-Test oder Quality-Reiz
+
+3. **10 %-Regel (ACSM):** Wochen-Volumen steigt max +10 %/Woche, max +15 % nach Erholungswoche.
+
+4. **Mesozyklus 3:1:** Jede 4. Woche = Erholungswoche mit −20 bis −30 % Volumen.
+
+5. **Tapering** (in der Schlusswoche bei 6+ Wochen-Plänen):
+   → Volumen −40 % vs. vorletzte Woche
+   → KEIN hartes Intervall in der Tapering-Woche
+   → Mi nur 2-3 km Easy mit 4 Strides (KEIN Tempo-Reiz 2-3 Tage vor Zieltest!)
+   → Fr Pause oder 2 km ganz locker
+   → Sa Zieltest gleichmäßig im Zieldistanz-Tempo
+
+6. **Sprint-Regel:**
+   ${isBeginner ? `→ KEINE 200m-Sprints für Anfänger! Stattdessen 4-6 × 30 Sek Strides @${zones.strides} km/h nach Easy.` : `→ 200m-Sprints @${zones.sprint} km/h ok ab Woche 3, vorher Strides 30 Sek @${zones.strides} km/h.`}
+
+7. **Keine 2 harte Einheiten in Folge.** Zwischen Intervall- und Tempo-Tag immer min. 1 Easy- oder Ruhetag.
+
+8. **Tempo-Pace muss echter Schwellenreiz sein:** ${zones.tempo} km/h für 20-40 Min — NICHT marathon-easy maskiert als Tempo. Wenn Tempo-Pace <1 km/h schneller als Easy ist, fehlt der Trainingsreiz.
+
+9. **Easy-Pace muss WIRKLICH Easy sein:** ${zones.easy} km/h. KEIN „bequemes 30-Min-Tempo" das in Wahrheit Tempo ist.
+
+VOR PLAN-AUSGABE: Selbst-Check (jeder Punkt wird sonst vom Reviewer abgestraft)
+- Bei Goal "comfort"/"reach": mehr als 1 Quality-Session/Woche → ÜBERARBEITEN
+- Bei Goal "race": mehr als 2 Quality-Sessions/Woche → ÜBERARBEITEN
+- Long Run > ${maxLongRun} km → ÜBERARBEITEN
+- Long Run mit p1.s ≠ ${zones.p1} oder p2.s ≠ ${zones.p1} oder p3.s ≠ ${zones.p1} → ÜBERARBEITEN (alle drei Phasen MÜSSEN ${zones.p1} sein)
+- Long Run schneller als Easy-Pace ${zones.easy} → ÜBERARBEITEN
+- Hat eine "Erholungswoche" nicht ≥20 % Volumenreduktion → ÜBERARBEITEN
+- Hat letzte Woche (Tapering) Tempo-Reiz oder Intervall in Mi/Fr → ÜBERARBEITEN
+- Race-Pace-Blöcke bei Goal "comfort"/"reach" → ÜBERARBEITEN, durch Easy-Volumen ersetzen
+- Easy-Anteil unter 80 % der Wochen-km → ÜBERARBEITEN
+- Tempo/Intervall/Sprint-Session OHNE Warm-up als erste Pace-Zeile → ÜBERARBEITEN
+- Tempo/Intervall/Sprint-Session OHNE Cool-down als letzte Pace-Zeile → ÜBERARBEITEN
+- Strides-Tag OHNE Cool-down nach den Strides → ÜBERARBEITEN`;
+
+function buildPlanPrompt(o) {
+  const hasTargetPace = !!o.targetPaceSecPerKm;
+  const goalMap = {
+    reach:   'erstmals erreichen / sicher zurücklegen (aerobe Basis + Long-Run-Aufbau)',
+    comfort: hasTargetPace
+      ? 'routiniert in der Zielpace festigen (Plan trainiert auf Zielpace hin, aber moderat — KEIN Wettkampf-Modus, KEIN aggressives Tapering, 1 Tempo-Reiz/Woche in Zielpace)'
+      : 'routiniert und locker festigen (Volumen-Konsistenz, weniger Intensität)',
+    race:    'in Bestzeit laufen (Threshold + VO2max-Reize, klares Tapering, Race-Pace-Spitzen am Plan-Ende)'
+  };
+  const expMap = {
+    beginner:    'Anfänger (unter 1 Jahr regelmäßiges Lauftraining) — vorsichtige Volumen-Steigerung, mehr Easy, KEINE 200m-Sprints, höchstens Strides',
+    recreational:'Hobbyläufer (1–3 Jahre) — moderate Belastung, Strides ok, Sprints sparsam',
+    experienced: 'erfahrener Läufer (3+ Jahre, kennt Trainingspläne) — volle Belastungspalette inkl. Intervall + Sprints',
+    competitive: 'Wettkampfläufer (regelmäßige Periodisierung) — komplexe Einheiten ok, hohe Intensität tolerierbar'
+  };
+  const envMap = {
+    indoor: 'INDOOR / Laufband — Kinomap-Strecken pro langer Lauf rotieren (Tokyo Imperial Palace, Paris Seine, Central Park NYC, Chicago Lakefront, London Hyde Park, Barcelona Barceloneta, Amsterdam Canals, Singapore Marina Bay).',
+    outdoor: 'OUTDOOR — KEINE Kinomap-Felder. Stattdessen Hinweis im title oder kurze Tip-Texte zu Streckentyp (flach/wellig). kinomap immer null.',
+    mix: 'MIX (Indoor + Outdoor) — Kinomap nur beim langen Lauf, alle anderen Tage outdoor-tauglich.'
+  };
+  const wkOrder = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+  const trainings = (o.weekdays || ['Mo','Mi','Fr','Sa']).slice().sort((a,b)=>wkOrder.indexOf(a)-wkOrder.indexOf(b));
+  const longDay = o.longRunDay || trainings[trainings.length-1];
+  const restDays = wkOrder.filter(d => !trainings.includes(d));
+  const otherTrainDays = trainings.filter(d => d !== longDay);
+  const bp = parseFloat(o.basePace) || 8.0;
+  const sprintExplicit = (o.sprintPace && o.sprintPace > 0) ? parseFloat(o.sprintPace) : null;
+  const isBeginner = o.experience === 'beginner';
+
+  // Daniels-konforme Pace-Zonen — abgeleitet aus Easy + Erfahrung
+  // Long Run KOMPLETT bei E-Pace (Coach-Korrektur — kein M-Pace, kein Tempo-Drift)
+  const z = {
+    easy:    bp.toFixed(1),
+    p1:      bp.toFixed(1),               // Long-Run = E-Pace, keine Steigerung
+    p2:      bp.toFixed(1),               // Long-Run = E-Pace, keine Steigerung
+    p3:      bp.toFixed(1),               // Long-Run = E-Pace, keine Steigerung
+    tempo:   (bp + 1.4).toFixed(1),       // T-Pace nach Daniels (~88% VO2max)
+    intervall:(bp + 2.2).toFixed(1),      // I-Pace nach Daniels (~98% VO2max, 3-5min haltbar)
+    sprint:  (sprintExplicit != null ? sprintExplicit : (bp + 3.0)).toFixed(1),  // R-Pace
+    strides: (bp + 2.0).toFixed(1),       // Strides für Anfänger — neuromuskulär ohne Sprint-Belastung
+    trab:    Math.max(5.0, bp - 1.5).toFixed(1)
+  };
+
+  // Bestzeit-Hinweis (Daniels VDOT-Anker)
+  let vdotHint = '';
+  if (o.bestTime5kSec) {
+    const minPerKm = (o.bestTime5kSec / 5) / 60;
+    const m = Math.floor(minPerKm); const s = Math.round((minPerKm - m) * 60);
+    vdotHint = `\n- 5 km BESTZEIT des Läufers: ${Math.floor(o.bestTime5kSec/60)}:${String(o.bestTime5kSec%60).padStart(2,'0')} (= ${m}:${String(s).padStart(2,'0')}/km im Wettkampf). Verwende diese Zeit als VDOT-Anker und justiere die T/I/R-Pace-Werte oben falls nötig nach Daniels-Tabelle (T = ~10s/km langsamer als 5k-Pace, I = 5k-Pace, R = ~8s/km schneller als 5k-Pace).`;
+  }
+
+  const longestRun = o.longestRun || 5;
+  const targetKm = parseFloat(o.distance) || 10;
+  // Long Run darf NIE über 1,2× Zieldistanz hinausgehen (Daniels-Standard)
+  const maxLongRun = Math.round(targetKm * 1.2 * 2) / 2;
+  // Start: 70% vom längsten Lauf bisher, aber nie höher als Zieldistanz
+  const startLongRun = Math.min(targetKm, Math.max(2.0, Math.round((longestRun * 0.7) * 2) / 2));
+
+  // Sanity-Check: Easy vs. 5k-Bestzeit (Daniels-VDOT-Korridor)
+  let inconsistencyHint = '';
+  if (o.bestTime5kSec) {
+    const fivekKmh = 5 / (o.bestTime5kSec / 3600);
+    const expectedEasy = fivekKmh - 2.0;     // grob: Easy ~ 5k-Pace - 2 km/h
+    if (Math.abs(bp - expectedEasy) > 1.0) {
+      inconsistencyHint = `\n\n⚠ WICHTIG — DATEN-INKONSISTENZ ERKANNT: User-Easy ${bp} km/h passt NICHT zur 5k-Bestzeit (${fivekKmh.toFixed(1)} km/h Wettkampftempo). Daniels-konformes Easy wäre ${expectedEasy.toFixed(1)} km/h. NIMM ${expectedEasy.toFixed(1)} km/h als Easy-Anker (nicht ${bp}) und justiere alle Pace-Zonen entsprechend nach unten. Der User hat das Easy-Konzept vermutlich missverstanden — er gibt Tempo statt echtes Easy an.`;
+    }
+  }
+
+  const incl = o.incline ?? 1;
+  const inclLine = `\n- LAUFBAND-STEIGUNG: ${incl}% (Standard für die Pace-Werte). NICHT in title oder paces erwähnen — wird automatisch angezeigt.`;
+  const hillLine = (o.hillTraining && !isBeginner) ? `\n- HILL-TRAINING aktiv: 1–2 Hill-Sessions pro Block einbauen. Notation: " ↗ X%" am Ende der Pace-Zeile (z.B. "6× 200m @ ${z.sprint} ↗ 5%"). Hill Sprints 4-6%, Hill Repeats 3-5%, Hill Tempo 2-3%.` : '';
+
+  let raceLine = '';
+  if (o.raceDate) {
+    raceLine = `\n- WETTKAMPFTERMIN: ${o.raceDate}. Letzte Woche = TAPERING (Volumen −40 %, KEIN hartes Intervall, nur kurze Lockerläufe + 1 lockerer Tempo-Reiz, am Wettkampftag-Vortag nur 2-3 km Easy mit 4 Strides).`;
+  }
+  const restrictLine = o.restrictions ? `\n- VERLETZUNGEN/BESCHWERDEN: ${o.restrictions} → entsprechend modifizieren (weniger/keine Sprints, längere Pausen, mehr Easy)` : '';
+  let targetPaceLine = '';
+  if (o.targetPaceSecPerKm) {
+    const tpMin = Math.floor(o.targetPaceSecPerKm / 60);
+    const tpSec = o.targetPaceSecPerKm % 60;
+    const targetKmh = (3600 / o.targetPaceSecPerKm).toFixed(1);
+    if (o.goal === 'race') {
+      targetPaceLine = `\n- ZIELPACE AM PLAN-ENDE: ${tpMin}:${String(tpSec).padStart(2,'0')}/km (= ${targetKmh} km/h). Schluss-Zieltest in der letzten Woche EXAKT in dieser Pace. Plan baut darauf hin: 2-3 Race-Pace-Reize in den letzten 3 Wochen, im Tapering 1× kurzer Race-Pace-Reiz.`;
+    } else if (o.goal === 'comfort') {
+      // Comfort + Zielpace: routiniert auf Zielpace, ohne Wettkampf-Spitzen
+      targetPaceLine = `\n- ZIELPACE (routiniert erreichen, KEIN Wettkampf): ${tpMin}:${String(tpSec).padStart(2,'0')}/km (= ${targetKmh} km/h). Plan trainiert sanft auf diese Pace hin: 1 Tempo-Session pro Woche in Zielpace (z.B. 2-3 km gleichmäßig oder 2× 1500m mit kurzer Pause). Schluss-Lauf der letzten Woche EXAKT in Zielpace gleichmäßig (= ${targetKmh} km/h, NICHT Easy). KEIN aggressives Tapering — letzte Woche Volumen nur leicht reduzieren (-25%), kein Race-Pace-Reiz vor Schluss-Lauf.`;
+    } else {
+      // reach: nur Information, Long-Run-Aufbau-fokus
+      targetPaceLine = `\n- LANGFRISTIGES ZIELTEMPO: ${tpMin}:${String(tpSec).padStart(2,'0')}/km (= ${targetKmh} km/h) — als Orientierung. Plan baut primär aerobe Basis auf (Long-Run-Aufbau), Schluss-Lauf gleichmäßig in Easy-Pace, NICHT in Zielpace.`;
+    }
+  }
+
+  // Anfänger-spezifische Anpassung der Sprint-Logik
+  const sprintRule = isBeginner
+    ? `Für Anfänger KEINE 200m-Sprints @${z.sprint}! Stattdessen 4–6 × 30 Sek Strides @${z.strides} nach einem Easy-Lauf.`
+    : `200m-Sprints @${z.sprint} ok ab Woche 3, vorher Strides 30 Sek @${z.strides}.`;
+
+  // Tapering-Regel
+  const taperWeek = parseInt(o.weeks) >= 6 ? `Letzte Woche = ECHTES TAPER: Volumen −40 %, KEIN hartes Intervall, nur 1 lockerer Tempo-Reiz Mi (max 2 km), Long-Run am Sa = Zieltest in gleichmäßigem ${z.p2} km/h.` : '';
+
+  const wuM = o.warmupM ?? 400;
+  const cdM = o.cooldownM ?? 400;
+
+  return `${COACH_PERSONA_INTRO}
+
+Du erstellst JETZT einen ${o.weeks}-Wochen-Trainingsplan als JSON. Nicht beschönigen, nicht überfordern — wissenschaftlich sauber.
+
+LÄUFER-PROFIL:
+- Erfahrung: ${expMap[o.experience] || expMap.recreational}
+- Zieldistanz: ${o.distance} km
+- Ziel: ${goalMap[o.goal] || goalMap.reach}
+- Easy-Tempo (E-Pace, vom User angegeben): ${bp.toFixed(1)} km/h${vdotHint}${inconsistencyHint}
+- Längster Lauf bisher: ${longestRun} km → Long-Run-Start in Woche 1: max. ${startLongRun} km
+- Trainingstage: ${trainings.join(', ')}
+- Langer Lauf an: ${longDay}
+- Ruhetage (müssen als type:"rest" im JSON stehen): ${restDays.join(', ') || '(keine)'}
+- Umgebung: ${envMap[o.environment] || envMap.mix}${inclLine}${hillLine}${raceLine}${targetPaceLine}${restrictLine}
+- Warm-up VOR JEDER Session mit Tempo/Intervall/Sprint/Strides: ${wuM}m bei Easy-Pace (PFLICHT — erste Pace-Zeile)
+- Cool-down NACH JEDER Session mit Tempo/Intervall/Sprint/Strides: ${cdM}m bei Easy-Pace (PFLICHT — letzte Pace-Zeile)
+- Reine Easy-Tage (nur "X km locker") brauchen KEIN WU/CD — Easy IST das Aufwärmen
+- Bei Strides nach Easy: Easy-Lauf zählt als WU, danach Strides direkt, dann ${cdM}m Cool-down ergänzen
+- Sonstige Wünsche: ${o.notes || 'keine'}
+
+PACE-ZONEN (km/h) — DAS IST DIE EINZIGE QUELLE FÜR PACE-WERTE IM PLAN:
+- Easy/E-Pace: ${z.easy} km/h
+- Long-Run p1/p2/p3 ALLE GLEICH: ${z.p1} km/h (kein Stufentempo!)
+- Tempo/T-Pace: ${z.tempo} km/h (~88% VO2max, 20-40 Min haltbar)
+- Intervall/I-Pace: ${z.intervall} km/h (~98% VO2max, 3-5 Min haltbar)
+- Sprint/R-Pace (200m): ${z.sprint} km/h
+- Strides (30s): ${z.strides} km/h
+- Trabpause: ${z.trab} km/h
+- Warm-up/Cool-down: ${wuM}m / ${cdM}m bei ${z.easy} km/h
+
+WOCHENVOLUMEN-GRENZEN:
+- Wochenvolumen NIEMALS über 4× Zieldistanz
+- Faustregel ${(targetKm*2.5).toFixed(0)}-${(targetKm*3.5).toFixed(0)} km/Woche als realistisches Volumen
+- Bei ${o.weeks}-Wochen-Plan: Volumen-Konsistenz vor Volumen-Aufbau
+
+LONG-RUN-AUFBAU:
+- Start W1: ${startLongRun} km
+- Wachstum max +10 %/Woche, +15 % nach Deload
+- ABSOLUTES MAX: ${maxLongRun} km
+- Zieldistanz in vorletzter Woche, Schlusswoche je nach Ziel
+
+${COACH_HARD_RULES(z, longDay, otherTrainDays, isBeginner, targetKm, maxLongRun, o.goal || 'reach')}
+
+Antworte NUR mit validem JSON, kein Text davor oder danach, keine Markdown-Backticks. Wenn dein Plan einen der Pflicht-Constraints verletzt, ÜBERARBEITE ihn vor Ausgabe.
+
+JSON-Format (alle Wochentage Mo–So pro Woche, type:"rest" für Nicht-Trainingstage):
+{
+  "name": "${o.weeks}-Wochen ${o.distance} km Plan",
+  "goal": "${o.distance} km ${goalMap[o.goal] || 'erreichen'}",
+  "trainingsdays": "${trainings.join(', ')}",
+  "weeks": [
+    {
+      "week": 1,
+      "focus": "Aerobe Basis",
+      "days": [
+        { "tag":"${otherTrainDays[0]||'Mo'}", "type":"intervall", "title":"4 × 400 m",
+          "paces":["${wuM}m @ ${z.easy}","4× 400m @ ${z.intervall}","Pause: 200m @ ${z.trab}","${cdM}m @ ${z.easy}"],
+          "kinomap":null, "lang":null },
+        { "tag":"${longDay}", "type":"lang", "title":"${startLongRun} km gleichmäßig",
+          "paces":null,
+          "kinomap": ${o.environment === 'outdoor' ? 'null' : '{"city":"...","search":"...","tip":"..."}'},
+          "lang":{"p1":{"km":"X,X km","s":"${z.p1}"},"p2":{"km":"X,X km","s":"${z.p1}"},"p3":{"km":"X,X km","s":"${z.p1}"}} },
+        { "tag":"${restDays[0]||'So'}", "type":"rest", "title":"Ruhetag", "paces":null, "kinomap":null, "lang":null }
+      ]
+    }
+  ]
+}`;
+}
+
+function readCreateForm() {
+  const wkOrder = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+  let weekdays = Array.from(document.querySelectorAll('.f-wd:checked')).map(c => c.value);
+  if (!weekdays.length) weekdays = ['Mo','Mi','Fr','Sa'];
+  weekdays.sort((a,b) => wkOrder.indexOf(a) - wkOrder.indexOf(b));
+  let longRunDay = document.querySelector('input[name=f-longrun]:checked')?.value || 'Sa';
+  if (!weekdays.includes(longRunDay)) longRunDay = weekdays[weekdays.length - 1]; // letzter Trainingstag
+  let startDate = snapToMonday(document.getElementById('f-startdate').value || todayISO());
+  const weeks = Math.max(4, Math.min(16, parseInt(document.getElementById('f-weeks').value) || 8));
+  const raceDate = document.getElementById('f-racedate').value || null;
+  // Wenn Wettkampftermin gesetzt: rückwärts rechnen — Plan endet exakt am Wettkampftag (oder am Sonntag der Plan-Woche)
+  if (raceDate) {
+    const rd = new Date(raceDate + 'T00:00:00');
+    const startCalc = new Date(rd);
+    startCalc.setDate(startCalc.getDate() - (weeks * 7 - 1));
+    const y = startCalc.getFullYear(), m = String(startCalc.getMonth()+1).padStart(2,'0'), dd = String(startCalc.getDate()).padStart(2,'0');
+    startDate = snapToMonday(`${y}-${m}-${dd}`);
+  }
+  // Bestzeit
+  const btMin = numFromInput('f-besttime-min');
+  const btSec = numFromInput('f-besttime-sec');
+  const bestTime5kSec = (btMin > 0) ? (btMin * 60 + (btSec || 0)) : null;
+  // Zielpace
+  const tpMin = numFromInput('f-targetpace-min');
+  const tpSec = numFromInput('f-targetpace-sec');
+  const targetPaceSecPerKm = (tpMin > 0) ? (tpMin * 60 + (tpSec || 0)) : null;
+
+  return {
+    distance: document.getElementById('f-distance').value,
+    weeks,
+    weekdays: weekdays.length ? weekdays : ['Mo','Mi','Fr','Sa'],
+    longRunDay,
+    basePace: numFromInput('f-basepace') || 8.0,
+    experience: document.getElementById('f-experience').value,
+    longestRun: numFromInput('f-longestrun') || 0,
+    bestTime5kSec,
+    goal: document.getElementById('f-goal').value,
+    notes: document.getElementById('f-notes').value,
+    startDate,
+    raceDate,
+    environment: document.getElementById('f-env').value,
+    restrictions: document.getElementById('f-restrictions').value,
+    incline: numFromInput('f-incline') || 0,
+    sprintPace: numFromInput('f-sprintpace') || null,
+    hillTraining: document.getElementById('f-hill').checked,
+    warmupM: Math.max(200, Math.min(2000, numFromInput("f-warmup") || 400)),
+    cooldownM: Math.max(200, Math.min(2000, numFromInput("f-cooldown") || 400)),
+    targetPaceSecPerKm,
+    apiKey: (document.getElementById('f-apikey')?.value || '').trim()
+  };
+}
+
+async function copyPromptForClaude() {
+  const o = readCreateForm();
+  const prompt = buildPlanPrompt(o);
+  try { await navigator.clipboard.writeText(prompt); }
+  catch(e) {
+    const ta = document.createElement('textarea');
+    ta.value = prompt; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+  }
+  document.getElementById('claude-flow').style.display = 'block';
+  document.getElementById('claude-flow').scrollIntoView({behavior:'smooth', block:'start'});
+  const btn = document.getElementById('btn-copy-prompt');
+  if (btn) { const old = btn.textContent; btn.textContent = '✓ Prompt kopiert'; setTimeout(()=>{btn.textContent=old;}, 2000); }
+}
+
+function importPlanFromJson() {
+  const raw = document.getElementById('f-jsonpaste').value.trim();
+  if (!raw) { showError('Bitte zuerst die JSON-Antwort von Claude einfügen.'); return; }
+  try {
+    const clean = raw.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+    const planData = JSON.parse(clean);
+    if (!planData.weeks || !Array.isArray(planData.weeks) || !planData.weeks.length) {
+      throw new Error('Kein gültiges weeks-Array gefunden.');
+    }
+    const o = readCreateForm();
+    const newPlan = {
+      ...planData,
+      id: 'plan-' + Date.now(),
+      startDate: o.startDate,
+      distance: parseFloat(o.distance) || null,
+      basePace: o.basePace,
+      experience: o.experience,
+      longestRun: o.longestRun,
+      bestTime5kSec: o.bestTime5kSec,
+      weekdays: o.weekdays,
+      longRunDay: o.longRunDay,
+      raceDate: o.raceDate,
+      environment: o.environment,
+      restrictions: o.restrictions,
+      incline: o.incline,
+      sprintPace: o.sprintPace,
+      hillTraining: o.hillTraining,
+      warmupM: o.warmupM,
+      cooldownM: o.cooldownM,
+      targetPaceSecPerKm: o.targetPaceSecPerKm,
+    };
+    state.plans.push(newPlan);
+    state.activePlanId = newPlan.id;
+    state.currentWeek[newPlan.id] = 0;
+    save();
+    // Automatischer Coach-Review im Hintergrund (silent, wenn API-Key vorhanden)
+    if (state.apiKey) { setTimeout(() => reviewPlanWithCoach(newPlan, null, { silent: true }).then(() => { renderTracker(); }).catch(e => console.warn("Auto-Review fehlgeschlagen:", e)), 1500); }
+    document.getElementById('create-content').innerHTML = `
+      <div class="generating-state">
+        <div style="display:flex;justify-content:center;color:var(--green);margin-bottom:16px">${icon('check',56,{strokeWidth:2.5})}</div>
+        <div class="generating-text" style="color:var(--green);font-size:18px;font-weight:600">${newPlan.name} importiert!</div>
+        <div class="generating-sub" style="margin-bottom:24px">${newPlan.weeks.length} Wochen · automatisch aktiviert</div>
+        <button style="padding:12px 28px;background:var(--accent);border:none;border-radius:12px;color:#fff;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer" onclick="showScreen('tracker')">Zum Plan</button>
+      </div>`;
+  } catch(e) {
+    showError('JSON konnte nicht gelesen werden: ' + e.message);
+  }
+}
+
+function renderCreate() {
+  const wkOpts = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+  const wkDefault = ['Mo','Mi','Fr','Sa'];
+  document.getElementById('create-content').innerHTML = `
+    <div class="create-form">
+      <div id="create-error" style="display:none" class="error-box"></div>
+
+      <div class="form-section-title">Über dich als Läufer</div>
+      <div class="form-group">
+        <label class="form-label">Lauferfahrung</label>
+        <select class="form-select" id="f-experience">
+          <option value="beginner">Neu / unter 1 Jahr regelmäßig</option>
+          <option value="recreational">1–3 Jahre, läuft regelmäßig</option>
+          <option value="experienced" selected>3+ Jahre, kennt Trainingspläne</option>
+          <option value="competitive">Wettkampf-erfahren (regelmäßig Läufe/Trainingsperiodisierung)</option>
+        </select>
+        <div class="pe-help">Bestimmt Trainingsdichte, Belastungstoleranz und ob die KI dich wie einen Anfänger oder erfahrenen Läufer behandelt. Easy-Tempo allein sagt nichts über Erfahrung.</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Längster Lauf bisher</label>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input type="text" inputmode="decimal" pattern="[0-9.,]*" step="0.5" min="0" max="50" class="form-input" id="f-longestrun" value="10" style="text-align:right">
+            <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">km</span>
+          </div>
+          <div class="pe-help">Start-Distanz für den langen Lauf in Woche 1 = ~70 % davon.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">5 km Bestzeit (optional)</label>
+          <div class="time-input">
+            <input type="text" inputmode="decimal" pattern="[0-9.,]*" min="10" max="60" class="form-input" id="f-besttime-min" value="" placeholder="Min">
+            <span class="time-sep">:</span>
+            <input type="text" inputmode="decimal" pattern="[0-9.,]*" min="0" max="59" class="form-input" id="f-besttime-sec" value="" placeholder="Sek">
+          </div>
+          <div class="pe-help">Wenn bekannt, definiert die KI Pace-Zonen nach Daniels' VDOT exakt. Sonst wird aus Easy + Erfahrung geschätzt.</div>
+        </div>
+      </div>
+
+      <div class="form-section-title">Trainings-Basis</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Zieldistanz</label>
+          <select class="form-select" id="f-distance">
+            <option value="5">5 km</option>
+            <option value="7.5" selected>7,5 km</option>
+            <option value="10">10 km</option>
+            <option value="15">15 km</option>
+            <option value="21">Halbmarathon (21 km)</option>
+            <option value="custom">Eigene</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Aktuelles Easy-Tempo</label>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input type="text" inputmode="decimal" pattern="[0-9.,]*" step="0.1" min="5" max="15" class="form-input" id="f-basepace" value="8.5" style="text-align:right">
+            <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">km/h</span>
+          </div>
+          <div class="pe-help"><b>Daniels-Definition:</b> Tempo bei dem du <u>60–90 Min am Stück</u> laufen UND in vollen Sätzen reden könntest, ohne k.o. zu sein. Faustregel: ~1,5–2,0 km/h langsamer als deine 5k-Wettkampf-Pace. Beispiel: 5k in 30 min (= 10 km/h) → Easy ~8,0 km/h. Echtes Easy fühlt sich gefühlt fast langweilig an — das ist gewollt.</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ziel</label>
+        <select class="form-select" id="f-goal">
+          <option value="reach">Distanz erstmals schaffen / sicher zurücklegen</option>
+          <option value="comfort" selected>Distanz routiniert + locker festigen (regelmäßig laufen)</option>
+          <option value="race">Distanz in Bestzeit laufen (Wettkampf-Vorbereitung)</option>
+        </select>
+        <div class="pe-help"><b>Erstmals schaffen</b> = aerobe Basis + Long-Run-Aufbau · <b>Festigen</b> = Volumen-Konsistenz; <u>mit Zielpace gesetzt</u> trainiert Plan sanft auf das Tempo hin · <b>Bestzeit</b> = Threshold + VO2max-Reize, Race-Pace-Spitzen, Tapering</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Zielpace am Plan-Ende (optional)</label>
+        <div class="time-input">
+          <input type="text" inputmode="decimal" pattern="[0-9]*" class="form-input" id="f-targetpace-min" value="" placeholder="Min">
+          <span class="time-sep">:</span>
+          <input type="text" inputmode="decimal" pattern="[0-9]*" class="form-input" id="f-targetpace-sec" value="" placeholder="Sek">
+          <span style="display:flex;align-items:center;font-size:12px;color:var(--muted);margin-left:6px">/km</span>
+        </div>
+        <div class="pe-help">Wenn gesetzt: Zieltest in der Schlusswoche wird genau in dieser Pace geplant. Beispiel: 6:30/km für 7,5 km = ca. 49 Min Lauf-Endzeit. Leer lassen wenn kein konkretes Tempo-Ziel.</div>
+      </div>
+
+      <div class="form-section-title">Termin</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Startdatum (Montag)</label>
+          <input type="date" class="form-input" id="f-startdate" value="${snapToMonday(todayISO())}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Wochen (4–16)</label>
+          <input type="text" inputmode="decimal" pattern="[0-9.,]*" min="4" max="16" step="1" class="form-input" id="f-weeks" value="6">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Wettkampftermin (optional)</label>
+        <input type="date" class="form-input" id="f-racedate" value="">
+        <div class="pe-help">Wenn gesetzt: Plan endet exakt an diesem Tag — Startdatum wird AUTOMATISCH zurückgerechnet, letzte Woche wird Tapering (frische Beine).</div>
+      </div>
+
+      <div class="form-section-title">Trainingstage</div>
+      <div class="form-group">
+        <div class="wd-grid">
+          ${wkOpts.map(d => `<label class="wd-pill"><input type="checkbox" class="f-wd" value="${d}" ${wkDefault.includes(d)?'checked':''}><span>${d}</span></label>`).join('')}
+        </div>
+        <div style="font-size:10px;color:var(--faint);margin-top:6px">Welche Tage willst du laufen?</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Langer Lauf an</label>
+        <div class="wd-grid">
+          ${wkOpts.map(d => `<label class="wd-pill wd-radio"><input type="radio" name="f-longrun" value="${d}" ${d==='Sa'?'checked':''}><span>${d}</span></label>`).join('')}
+        </div>
+      </div>
+
+      <div class="form-section-title">Umgebung & Einschränkungen</div>
+      <div class="form-group">
+        <label class="form-label">Trainingsumgebung</label>
+        <select class="form-select" id="f-env">
+          <option value="mix">Mix (Indoor + Outdoor)</option>
+          <option value="indoor" selected>Nur Laufband (Indoor)</option>
+          <option value="outdoor">Nur Outdoor</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Laufband-Steigung</label>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input type="text" inputmode="decimal" pattern="[0-9.,]*" min="0" max="15" step="0.5" class="form-input" id="f-incline" value="1" style="text-align:right">
+            <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">%</span>
+          </div>
+          <div class="pe-help">Wird in jedem Pace-Chip als ↗ X % angezeigt. Standard 1 % am Laufband gleicht fehlenden Luftwiderstand aus.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sprint-Tempo (optional)</label>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input type="text" inputmode="decimal" pattern="[0-9.,]*" min="8" max="22" step="0.1" class="form-input" id="f-sprintpace" value="" placeholder="auto" style="text-align:right">
+            <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">km/h</span>
+          </div>
+          <div class="pe-help">Sprint skaliert NICHT linear mit Easy. Leer lassen = aus Easy abgeleitet (~+2,2 km/h). Eigenes Tempo eintragen wenn realistisch besser/schlechter.</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Warm-up (m)</label>
+          <input type="text" inputmode="decimal" pattern="[0-9]*" class="form-input" id="f-warmup" value="400" style="text-align:right">
+          <div class="pe-help">Einlaufen vor Intervallen/Tempo bei Easy-Pace. Standard 800 m (= 5–6 Min). Mehr = besser für Verletzungsprävention. Minimum sinnvoll 400 m.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cool-down (m)</label>
+          <input type="text" inputmode="decimal" pattern="[0-9]*" class="form-input" id="f-cooldown" value="400" style="text-align:right">
+          <div class="pe-help">Auslaufen nach harten Einheiten bei Easy-Pace. Standard 600 m (= 4–5 Min). Hilft beim Laktat-Abbau und der Regeneration.</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="wd-pill" style="display:flex;align-items:center;justify-content:flex-start;gap:10px;text-align:left;padding:10px 14px;width:100%;color:var(--text)">
+          <input type="checkbox" id="f-hill" style="opacity:1;position:static;pointer-events:auto;width:16px;height:16px;accent-color:var(--accent)">
+          <span style="font-weight:500">Hill-Training einbauen (Bergsprints / steilere Intervalle)</span>
+        </label>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Verletzungen / Beschwerden (optional)</label>
+        <textarea class="form-textarea" id="f-restrictions" placeholder="z.B. linkes Knie reizbar — keine Sprünge, weniger 200m-Sprints" style="height:60px"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sonstige Wünsche (optional)</label>
+        <textarea class="form-textarea" id="f-notes" placeholder="z.B. keine langen Warm-ups, Kinomap-Strecken bevorzugt..." style="height:60px"></textarea>
+      </div>
+
+      <div style="margin:20px 0 4px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:12px">
+        <div style="font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px">Plan generieren</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:10px">Anthropic-API-Key (einmalig hinterlegen, wird lokal gespeichert — gerätelokal!):</div>
+        <div style="display:flex;gap:6px;margin-bottom:6px">
+          <input type="password" class="form-input" id="f-apikey" placeholder="sk-ant-..." value="${state.apiKey||''}" style="flex:1;font-family:'DM Mono',monospace;font-size:11px" oninput="state.apiKey = this.value.trim(); save();">
+          <button onclick="toggleKeyVisibility()" style="padding:0 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--muted);font-family:inherit;font-size:11px;cursor:pointer">Anzeigen</button>
+        </div>
+        ${state.apiKey ? `<button onclick="copyKeyToClipboard()" style="display:inline-block;background:transparent;border:none;color:var(--accent);font-size:11px;cursor:pointer;padding:0;margin-bottom:10px;text-decoration:underline">Key in Zwischenablage kopieren (für AirDrop/Notiz)</button>` : ''}
+        <button class="generate-btn" onclick="generatePlan()" style="display:inline-flex;align-items:center;justify-content:center;gap:8px">${icon('sparkles',16)}<span>Plan generieren</span></button>
+      </div>
+    </div>`;
+}
+
+async function generatePlan() {
+  const o = readCreateForm();
+  if (!o.apiKey) { showError('Bitte gib deinen API-Key ein — oder nutze Weg A (Claude.ai).'); return; }
+  state.apiKey = o.apiKey;
+  save();
+
+  document.getElementById('create-content').innerHTML = `
+    <div class="generating-state">
+      <div class="generating-spinner"></div>
+      <div class="generating-text">Plan wird erstellt...</div>
+      <div class="generating-sub">Das dauert ca. 15–30 Sekunden</div>
+    </div>`;
+
+  const prompt = buildPlanPrompt(o);
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': o.apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-7',
+        max_tokens: 8000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error?.message || `API Fehler ${response.status}`);
+    }
+
+    const data = await response.json();
+    const text = data.content.find(b => b.type === 'text')?.text || '';
+    const clean = text.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+    const planData = JSON.parse(clean);
+
+    const newPlan = {
+      ...planData,
+      id: 'plan-' + Date.now(),
+      startDate: o.startDate,
+      distance: parseFloat(o.distance) || null,
+      basePace: o.basePace,
+      experience: o.experience,
+      longestRun: o.longestRun,
+      bestTime5kSec: o.bestTime5kSec,
+      weekdays: o.weekdays,
+      longRunDay: o.longRunDay,
+      raceDate: o.raceDate,
+      environment: o.environment,
+      restrictions: o.restrictions,
+      incline: o.incline,
+      sprintPace: o.sprintPace,
+      hillTraining: o.hillTraining,
+      warmupM: o.warmupM,
+      cooldownM: o.cooldownM,
+      targetPaceSecPerKm: o.targetPaceSecPerKm,
+    };
+
+    state.plans.push(newPlan);
+    state.activePlanId = newPlan.id;
+    state.currentWeek[newPlan.id] = 0;
+    save();
+    // Automatischer Coach-Review im Hintergrund (silent, wenn API-Key vorhanden)
+    if (state.apiKey) { setTimeout(() => reviewPlanWithCoach(newPlan, null, { silent: true }).then(() => { renderTracker(); }).catch(e => console.warn("Auto-Review fehlgeschlagen:", e)), 1500); }
+
+    document.getElementById('create-content').innerHTML = `
+      <div class="generating-state">
+        <div style="display:flex;justify-content:center;color:var(--green);margin-bottom:16px">${icon('check',56,{strokeWidth:2.5})}</div>
+        <div class="generating-text" style="color:var(--green);font-size:18px;font-weight:600">${newPlan.name} erstellt!</div>
+        <div class="generating-sub" style="margin-bottom:24px">${newPlan.weeks.length} Wochen · automatisch aktiviert</div>
+        <button style="padding:12px 28px;background:var(--accent);border:none;border-radius:12px;color:#fff;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer" onclick="showScreen('tracker')">Zum Plan</button>
+      </div>`;
+
+  } catch(e) {
+    renderCreate();
+    showError('Fehler: ' + e.message + '\n\nBitte API Key prüfen.');
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('create-error');
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+
+function toggleKeyVisibility() {
+  const inp = document.getElementById('f-apikey');
+  if (!inp) return;
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+async function copyKeyToClipboard() {
+  const key = state.apiKey;
+  if (!key) return;
+  try {
+    await navigator.clipboard.writeText(key);
+    alert('API-Key in Zwischenablage kopiert.\n\nJetzt per AirDrop / Notizen / Mail aufs iPhone bringen, dort in der App im Erstellen-Tab einfügen.');
+  } catch(e) {
+    prompt('Key (manuell kopieren):', key);
+  }
+}
+
+// ─── Service Worker (Offline) ─────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────
+load();
+ensurePlanDefaults();
+applyTheme(state.theme || 'dunkel');
+// Tab-Icons
+document.getElementById('tab-icon-tracker').innerHTML = icon('activity', 22);
+document.getElementById('tab-icon-plans').innerHTML   = icon('list', 22);
+document.getElementById('tab-icon-create').innerHTML  = icon('sparkles', 22);
+// Letzten Screen wiederherstellen
+showScreen(state.lastScreen || 'tracker');
+
+// Build-Version-Indikator (klein, oben links — damit du sofort siehst welche Version läuft)
+const verBadge = document.createElement('div');
+verBadge.style.cssText = 'position:fixed;top:14px;left:14px;z-index:90;font-family:DM Mono,monospace;font-size:11px;font-weight:700;color:#fff;background:#FF6900;padding:4px 10px;border-radius:6px;letter-spacing:0.05em;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,0.25)';
+verBadge.textContent = 'v ' + APP_VERSION;
+document.body.appendChild(verBadge);
+</script>
+</body>
+</html>
