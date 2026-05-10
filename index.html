@@ -108,7 +108,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 /* Week tabs */
 .week-scroll{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:0 16px 2px;-webkit-overflow-scrolling:touch}
 .week-scroll::-webkit-scrollbar{display:none}
-.week-tab{flex:1 1 auto;min-width:54px;max-width:140px;padding:6px 10px;border-radius:20px;font-size:13px;font-weight:500;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all 0.15s;position:relative;text-align:center;white-space:nowrap}
+.week-tab{flex:1 1 auto;min-width:60px;max-width:140px;padding:5px 10px 4px;border-radius:14px;font-size:13px;font-weight:500;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all 0.15s;position:relative;text-align:center;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.1}
+.week-tab-num{font-size:12px;font-weight:600}
+.week-tab-km{font-family:'DM Mono',monospace;font-size:9px;color:var(--faint);font-weight:600;letter-spacing:0.02em}
+.week-tab.active .week-tab-km{color:var(--on-accent);opacity:0.75}
+.week-tab.complete .week-tab-km{color:var(--green);opacity:0.7}
 .week-tab.active{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .week-tab.complete{border-color:var(--green);color:var(--green)}
 .wk-dot{width:5px;height:5px;border-radius:50%;background:var(--green);position:absolute;top:3px;right:3px}
@@ -541,7 +545,7 @@ function icon(name, size = 18, opts = {}) {
 }
 
 // ─── Build-Version (manuell hochzählen bei Code-Push) ────────────────────
-const APP_VERSION = '2026-05-10-plans-rings';
+const APP_VERSION = '2026-05-10-notes-volume';
 
 // ─── State ───────────────────────────────────────────────────────────────
 let state = {
@@ -966,6 +970,93 @@ function setPaceFactor(planId, f) {
   p.paceFactor = Math.max(0.85, Math.min(1.20, Math.round(f * 100) / 100));
   save();
   renderTracker();
+}
+
+// Pro-Day-Tempo-Override: erlaubt einzelne Trainings vom Plan-Tempo abzuweichen,
+// ohne den globalen Faktor zu ändern. Erledigte Tage nutzen weiter ihren eingefrorenen Faktor.
+function dayPaceFactor(planId, wIdx, dayIdx) {
+  const key = `${planId}-${wIdx}-${dayIdx}`;
+  const ov = state.dayPace?.[key];
+  if (typeof ov === 'number') return ov;
+  const p = state.plans.find(x => x.id === planId);
+  return paceFactor(p);
+}
+function setDayPaceFactor(planId, wIdx, dayIdx, f) {
+  if (!state.dayPace) state.dayPace = {};
+  const key = `${planId}-${wIdx}-${dayIdx}`;
+  state.dayPace[key] = Math.max(0.85, Math.min(1.20, Math.round(f * 100) / 100));
+  save();
+  renderTracker();
+  if (document.getElementById('day-detail-bg').classList.contains('open')) {
+    openDayDetail(planId, wIdx, dayIdx);
+  }
+}
+function adjustDayPace(planId, wIdx, dayIdx, delta) {
+  setDayPaceFactor(planId, wIdx, dayIdx, dayPaceFactor(planId, wIdx, dayIdx) + delta);
+}
+function resetDayPace(planId, wIdx, dayIdx) {
+  if (!state.dayPace) return;
+  const key = `${planId}-${wIdx}-${dayIdx}`;
+  delete state.dayPace[key];
+  save();
+  renderTracker();
+  if (document.getElementById('day-detail-bg').classList.contains('open')) {
+    openDayDetail(planId, wIdx, dayIdx);
+  }
+}
+
+// Optionale Notiz pro Training (Freitext für Kontext: Wetter, Beschwerden, Wahrnehmung)
+function setDayNote(planId, wIdx, dayIdx, text) {
+  if (!state.notes) state.notes = {};
+  const key = `${planId}-${wIdx}-${dayIdx}`;
+  const trimmed = (text || '').trim();
+  if (trimmed) state.notes[key] = trimmed;
+  else delete state.notes[key];
+  save();
+}
+
+// Volumen-Helper: km eines Tages (Plan-fix, ohne Faktor) — für Wochen-Volumen-Anzeige
+function dayKm(day, plan) {
+  if (!day || day.type === 'rest') return 0;
+  let total = 0;
+  if (day.paces?.length) {
+    day.paces.forEach(p => {
+      const parsed = parsePaceLine(p, plan?.incline ?? 1, 1.0);
+      if (!parsed || parsed.isPause) return;
+      const lbl = String(parsed.distanceLabel || '');
+      const num = parseFloat(lbl.replace(',','.'));
+      if (isNaN(num)) return;
+      const km = /km/i.test(lbl) ? num : num / 1000;
+      total += km * (parsed.repetitions || 1);
+    });
+  }
+  if (day.lang) {
+    ['p1','p2','p3'].forEach(p => {
+      const raw = day.lang[p]?.km;
+      if (!raw) return;
+      total += parseFloat(String(raw).replace(/[^\d.,]/g,'').replace(',','.')) || 0;
+    });
+  }
+  return total;
+}
+function weekKm(plan, wIdx) {
+  const w = plan?.weeks?.[wIdx];
+  if (!w) return 0;
+  return Math.round(w.days.reduce((s, d) => s + dayKm(d, plan), 0) * 10) / 10;
+}
+function weekKmDone(plan, wIdx) {
+  const w = plan?.weeks?.[wIdx];
+  if (!w) return 0;
+  let total = 0, nri = 0;
+  w.days.forEach(d => {
+    if (d.type === 'rest') return;
+    const idx = nri++;
+    if (state.done[`${plan.id}-${wIdx}-${idx}`]) total += dayKm(d, plan);
+  });
+  return Math.round(total * 10) / 10;
+}
+function fmtKm(km) {
+  return (Math.round(km * 10) / 10).toString().replace('.',',');
 }
 
 // Aktuellen paceFactor fest in den Plan einbacken: alle Pace-Strings * f, basePace * f, paceFactor zurück auf 1.0
@@ -1668,7 +1759,8 @@ async function adaptPlanFromFeedback(plan, btnEl) {
       if (state.done?.[key]) {
         feedbackEntries.push({
           week: w.week, day: d.tag, type: d.type, title: d.title,
-          feedback: state.feedback?.[key] || '(kein Feedback)'
+          feedback: state.feedback?.[key] || '(kein Feedback)',
+          note: state.notes?.[key] || ''
         });
       }
     });
@@ -1709,7 +1801,9 @@ async function adaptPlanFromFeedback(plan, btnEl) {
 
   if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'KI passt an …'; }
 
-  const feedbackList = feedbackEntries.map(e => `- W${e.week} ${e.day} ${e.type} (${e.title}): ${e.feedback}`).join('\n');
+  const feedbackList = feedbackEntries.map(e => `- W${e.week} ${e.day} ${e.type} (${e.title}): ${e.feedback}${e.note ? ` · Notiz: "${e.note}"` : ''}`).join('\n');
+  const hasNotes = feedbackEntries.some(e => e.note);
+  const notesHint = hasNotes ? `\n\nWICHTIG: Die Notizen enthalten qualitativen Kontext (Beschwerden, Wetter, Wahrnehmung). NUTZE sie aktiv:\n- Beschwerden (Knie, Achilles, Schienbein) → entsprechende Belastung in Folgewochen reduzieren / anders verteilen\n- Wahrnehmung ("zu hart" / "zu locker" trotz easy/passt) → präziser justieren als der Feedback-Wert allein hergibt\n- Externe Faktoren (Wind, Hitze, neuer Schuh) → relativieren ob das Feedback wirklich auf die Belastung zurückgeht` : '';
   const prompt = `${COACH_PERSONA_INTRO}
 
 Du sollst die VERBLEIBENDEN Wochen eines bereits laufenden Plans an das echte Feedback des Läufers anpassen. NICHT den ganzen Plan neu — nur die noch nicht abgeschlossenen Wochen optimieren.
@@ -1722,7 +1816,7 @@ FEEDBACK BISHER (${ratedCount} bewertete Trainings):
 ${stats.easy}× easy, ${stats.ok}× passt, ${stats.hard}× hart, ${stats.none}× ohne Feedback
 
 FEEDBACK-DETAIL:
-${feedbackList}
+${feedbackList}${notesHint}
 
 ANALYSE-AUFTRAG:
 - Überwiegend "easy" → Intensität in Folgewochen anheben (Tempo höher, Volumen ggf. mehr)
@@ -2173,14 +2267,17 @@ function renderTracker() {
     return !!state.done[`${plan.id}-${wIdx}-${ni}`];
   }).length;
 
-  // Week tabs
+  // Week tabs (mit km-Volumen pro Woche — zeigt Steigerung & Tapering visuell)
   const weekTabs = plan.weeks.map((wk,i) => {
     const wkNR = wk.days.filter(d=>d.type!=='rest').length;
     let wkDone = 0;
     wk.days.forEach((d,di) => { if(d.type!=='rest' && state.done[`${plan.id}-${i}-${di}`]) wkDone++; });
     const complete = wkDone === wkNR;
+    const wkKm = weekKm(plan, i);
     return `<button class="week-tab ${i===wIdx?'active':''} ${complete&&i!==wIdx?'complete':''}" onclick="setWeek('${plan.id}',${i})">
-      Wo. ${wk.week}${complete&&i!==wIdx?'<span class="wk-dot"></span>':''}
+      <span class="week-tab-num">Wo. ${wk.week}</span>
+      <span class="week-tab-km">${fmtKm(wkKm)} km</span>
+      ${complete&&i!==wIdx?'<span class="wk-dot"></span>':''}
     </button>`;
   }).join('');
 
@@ -2212,8 +2309,11 @@ function renderTracker() {
     const idx = nri++;
     const dKey = `${plan.id}-${wIdx}-${idx}`;
     const isDone = !!state.done[dKey];
-    // Erledigte Tage nutzen den eingefrorenen Faktor — Tempo-Änderungen wirken nur auf zukünftige
-    const dpf = isDone ? ((state.donePace && state.donePace[dKey] != null) ? state.donePace[dKey] : 1.0) : pf;
+    // Erledigte Tage nutzen den eingefrorenen Faktor; sonst Day-Override (falls gesetzt) > Plan-Faktor
+    const dpf = isDone
+      ? ((state.donePace && state.donePace[dKey] != null) ? state.donePace[dKey] : 1.0)
+      : ((state.dayPace && state.dayPace[dKey] != null) ? state.dayPace[dKey] : pf);
+    const hasDayOverride = !isDone && state.dayPace && state.dayPace[dKey] != null;
     const planIncline = plan.incline ?? 1;
     const paces = d.paces ? renderPaceTable(d.paces, planIncline, dpf, plan.basePace) : '';
     const langBlock = d.lang ? renderLangTable(d.lang, planIncline, dpf) : '';
@@ -2242,6 +2342,9 @@ function renderTracker() {
         : isDone
           ? `<span class="day-meta-status s-done">Erledigt</span>`
           : '';
+    const overrideBadge = hasDayOverride
+      ? `<span class="day-meta-status" style="color:var(--accent);background:var(--accent-soft);font-family:'DM Mono',monospace" title="Tempo nur für diese Einheit angepasst">${fmtFactor(dpf)}</span>`
+      : '';
     return `
       <div class="day-card t-${d.type} ${isDone?'done':''} ${isToday?'today':''} ${isMissed?'missed':''}">
         <div class="day-main" onclick="openDayDetail('${plan.id}',${wIdx},${idx})">
@@ -2255,6 +2358,7 @@ function renderTracker() {
               <span class="day-meta-icon">${icon(typeIco,14)}</span>
               <span>${d.tag}</span>${dDateStr?`<span class="day-meta-sep">·</span><span>${dDateStr}</span>`:''}
               <span class="day-meta-sep">·</span><span class="day-meta-type">${badgeLabel(d.type)}</span>
+              ${overrideBadge}
               ${statusBadge}
             </div>
             <div class="day-title">${d.title}</div>
@@ -2292,6 +2396,8 @@ function renderTracker() {
       const s = calcPlanStats(plan);
       const daysVal = s.daysToEnd === null ? '–' : s.daysToEnd;
       const daysUnit = s.daysToEnd === null ? '' : (s.daysToEnd === 1 ? ' Tag' : ' Tage');
+      const wkKmTotal = weekKm(plan, wIdx);
+      const wkKmDoneVal = weekKmDone(plan, wIdx);
       return `
       <div class="stats-strip">
         <div class="stat-card">
@@ -2301,7 +2407,7 @@ function renderTracker() {
         </div>
         <div class="stat-card">
           <div class="stat-icon">${icon('trendingUp',16)}</div>
-          <div class="stat-val">${s.wkDone}<span class="stat-unit">/${s.wkTotal}</span></div>
+          <div class="stat-val">${fmtKm(wkKmDoneVal)}<span class="stat-unit">/${fmtKm(wkKmTotal)} km</span></div>
           <div class="stat-lbl">Diese Woche</div>
         </div>
         <div class="stat-card">
@@ -2326,9 +2432,9 @@ function renderTracker() {
         <div class="pace-ctrl">
           <div class="pace-ctrl-lbl">Tempo</div>
           <div class="pace-ctrl-row">
-            <button class="pace-ctrl-btn" onclick="adjustPace('${plan.id}',-0.05)" aria-label="Tempo verringern">−</button>
+            <button class="pace-ctrl-btn" onclick="adjustPace('${plan.id}',-0.01)" aria-label="Tempo verringern">−</button>
             <div class="pace-ctrl-val">${fmtFactor(pf)}</div>
-            <button class="pace-ctrl-btn" onclick="adjustPace('${plan.id}',0.05)" aria-label="Tempo erhöhen">+</button>
+            <button class="pace-ctrl-btn" onclick="adjustPace('${plan.id}',0.01)" aria-label="Tempo erhöhen">+</button>
             <button class="pace-ctrl-btn" onclick="setPaceFactor('${plan.id}',1.0)" aria-label="Tempo zurücksetzen" style="color:var(--muted);display:inline-flex;align-items:center;justify-content:center">${icon('rotateCcw',13)}</button>
           </div>
           ${Math.abs(pf - 1.0) > 0.001 ? `<button class="pace-bake" onclick="bakeInPace('${plan.id}')" title="Aktuelles Tempo dauerhaft als Standard speichern">${icon('check',11)}<span>Als Standard übernehmen</span></button>` : ''}
@@ -2374,6 +2480,8 @@ function resetWeek(planId, wIdx) {
   Object.keys(state.done).forEach(k => { if(k.startsWith(prefix)) delete state.done[k]; });
   if (state.donePace) Object.keys(state.donePace).forEach(k => { if(k.startsWith(prefix)) delete state.donePace[k]; });
   if (state.feedback) Object.keys(state.feedback).forEach(k => { if(k.startsWith(prefix)) delete state.feedback[k]; });
+  if (state.dayPace) Object.keys(state.dayPace).forEach(k => { if(k.startsWith(prefix)) delete state.dayPace[k]; });
+  if (state.notes) Object.keys(state.notes).forEach(k => { if(k.startsWith(prefix)) delete state.notes[k]; });
   save();
   renderTracker();
 }
@@ -2383,8 +2491,10 @@ function toggleDone(planId, wIdx, dayIdx) {
   state.done[key] = !state.done[key];
   if (!state.donePace) state.donePace = {};
   if (state.done[key]) {
+    // Beim Abhaken den effektiven Faktor einfrieren — Day-Override hat Vorrang
+    const ov = state.dayPace?.[key];
     const p = state.plans.find(x => x.id === planId);
-    state.donePace[key] = paceFactor(p);
+    state.donePace[key] = (typeof ov === 'number') ? ov : paceFactor(p);
   } else {
     delete state.donePace[key];
   }
@@ -2406,7 +2516,10 @@ function openDayDetail(planId, wIdx, dayIdx) {
   if (!d) return;
   const dKey = `${planId}-${wIdx}-${dayIdx}`;
   const isDone = !!state.done[dKey];
-  const dpf = isDone ? ((state.donePace && state.donePace[dKey] != null) ? state.donePace[dKey] : 1.0) : paceFactor(plan);
+  const hasDayOv = !isDone && state.dayPace && state.dayPace[dKey] != null;
+  const dpf = isDone
+    ? ((state.donePace && state.donePace[dKey] != null) ? state.donePace[dKey] : 1.0)
+    : (hasDayOv ? state.dayPace[dKey] : paceFactor(plan));
   const planIncline = plan.incline ?? 1;
   const dDate = dayDate(plan, wIdx, d.tag);
   const dDateStr = dDate ? fmtFull(dDate) : '';
@@ -2440,8 +2553,36 @@ function openDayDetail(planId, wIdx, dayIdx) {
       <button class="fb-pill act-hard ${fbVal==='hard'?'on':''}" onclick="setFeedback('${planId}',${wIdx},${dayIdx},'hard');openDayDetail('${planId}',${wIdx},${dayIdx})">${icon('flame',12)}<span>hart</span></button>
     </div>` : '';
 
+  // Optionale Notiz — frei beschreibbar, ergänzt den Feedback-Wert um Kontext (Wetter, Beschwerden, Wahrnehmung)
+  const noteVal = (state.notes?.[dKey] || '').replace(/"/g,'&quot;');
+  const noteBlock = `
+    <div style="margin-top:14px">
+      <div style="font-size:10px;font-weight:700;color:var(--faint);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">Notiz <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">(optional, hilft dem Coach beim Anpassen)</span></div>
+      <textarea id="day-note-input" placeholder="z.B. Knie zog leicht beim Tempo · windig · neuer Schuh · Magen flau …"
+        style="width:100%;min-height:60px;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:inherit;font-size:13px;line-height:1.4;resize:vertical;outline:none"
+        oninput="setDayNote('${planId}',${wIdx},${dayIdx},this.value)">${noteVal}</textarea>
+    </div>`;
+
   const toggleLabel = isDone ? 'Erledigt zurücknehmen' : 'Als erledigt markieren';
   const toggleClass = isDone ? 'detail-btn danger' : 'detail-btn primary';
+
+  // Pro-Tag-Tempo-Adjuster (nur für noch nicht erledigte Trainings)
+  const planF = paceFactor(plan);
+  const paceBlock = isDone ? '' : `
+    <div style="display:flex;align-items:center;gap:10px;margin-top:14px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:12px">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:10px;font-weight:700;color:var(--faint);letter-spacing:0.08em;text-transform:uppercase">Tempo dieser Einheit</div>
+        <div style="font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);margin-top:2px">
+          ${hasDayOv ? `<span style="color:var(--accent);font-weight:700">${fmtFactor(dpf)}</span> <span style="color:var(--faint)">· Plan-Tempo ${fmtFactor(planF)}</span>` : `<span>${fmtFactor(dpf)}</span> <span style="color:var(--faint)">· folgt Plan-Tempo</span>`}
+        </div>
+      </div>
+      <div style="display:flex;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;flex-shrink:0">
+        <button class="pace-ctrl-btn" onclick="adjustDayPace('${planId}',${wIdx},${dayIdx},-0.01)" aria-label="Tempo verringern">−</button>
+        <div class="pace-ctrl-val">${fmtFactor(dpf)}</div>
+        <button class="pace-ctrl-btn" onclick="adjustDayPace('${planId}',${wIdx},${dayIdx},0.01)" aria-label="Tempo erhöhen">+</button>
+      </div>
+      ${hasDayOv ? `<button onclick="resetDayPace('${planId}',${wIdx},${dayIdx})" style="flex-shrink:0;padding:7px 10px;border-radius:8px;border:1px dashed var(--border2);background:transparent;color:var(--muted);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer" title="Auf Plan-Tempo zurücksetzen">⟲ Plan</button>` : ''}
+    </div>`;
 
   document.getElementById('day-detail-body').innerHTML = `
     <div class="detail-head">
@@ -2451,10 +2592,12 @@ function openDayDetail(planId, wIdx, dayIdx) {
       </div>
       <div>${statusBadge}</div>
     </div>
+    ${paceBlock}
     ${paces}
     ${langBlock}
     ${kinoBlock}
     ${fbBlock}
+    ${noteBlock}
     <div class="detail-actions">
       <button class="${toggleClass}" onclick="toggleDone('${planId}',${wIdx},${dayIdx})">${toggleLabel}</button>
       <button class="detail-btn" onclick="closeDayDetail()">Schließen</button>
@@ -2788,6 +2931,8 @@ function deletePlan(id) {
   Object.keys(state.done).forEach(k => { if(k.startsWith(id+'-')) delete state.done[k]; });
   if (state.donePace) Object.keys(state.donePace).forEach(k => { if(k.startsWith(id+'-')) delete state.donePace[k]; });
   if (state.feedback) Object.keys(state.feedback).forEach(k => { if(k.startsWith(id+'-')) delete state.feedback[k]; });
+  if (state.dayPace) Object.keys(state.dayPace).forEach(k => { if(k.startsWith(id+'-')) delete state.dayPace[k]; });
+  if (state.notes) Object.keys(state.notes).forEach(k => { if(k.startsWith(id+'-')) delete state.notes[k]; });
   if (state.coachDismiss) Object.keys(state.coachDismiss).forEach(k => { if(k.startsWith(id+'-')) delete state.coachDismiss[k]; });
   if (state.activePlanId === id) state.activePlanId = state.plans.length ? state.plans[0].id : null;
   save();
