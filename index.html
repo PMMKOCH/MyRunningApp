@@ -251,15 +251,28 @@ body[data-theme="all41"] .coach{background:linear-gradient(135deg,rgba(82,13,145
 .wk-focus{font-size:12px;color:var(--muted);margin-top:2px}
 
 /* Plans list */
-.plan-item{position:relative;margin:0 16px 10px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:14px;cursor:pointer;transition:all 0.2s;opacity:0.78}
-.plan-item:not(.active-plan):hover{opacity:1}
-.plan-item.active-plan{opacity:1;border:2px solid var(--accent);background:linear-gradient(135deg,rgba(79,142,247,0.08),rgba(79,142,247,0.02));box-shadow:0 4px 16px rgba(79,142,247,0.15);padding-left:20px}
-body[data-theme="hell"] .plan-item.active-plan{background:linear-gradient(135deg,rgba(255,105,0,0.10),rgba(255,105,0,0.02));box-shadow:0 4px 16px rgba(255,105,0,0.18)}
-body[data-theme="all41"] .plan-item.active-plan{background:linear-gradient(135deg,rgba(82,13,145,0.06),rgba(255,105,0,0.04));box-shadow:0 4px 20px rgba(82,13,145,0.12);border-color:var(--afo-orange-600)}
-.plan-item.active-plan::before{content:'';position:absolute;left:-1px;top:8px;bottom:8px;width:5px;border-radius:3px;background:var(--accent)}
-.plan-item-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:10px}
-.plan-item-name{font-size:15px;font-weight:500}
-.active-plan .plan-item-name{font-size:17px;font-weight:600}
+.plan-card{position:relative;margin:0 16px 12px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:16px;transition:all 0.2s}
+.plan-card.active{border:2px solid var(--accent);box-shadow:0 8px 28px var(--accent-soft);padding:15px}
+.plan-card-head{display:flex;gap:14px;align-items:center}
+.plan-ring{position:relative;width:62px;height:62px;flex-shrink:0}
+.plan-ring svg{transform:rotate(-90deg)}
+.plan-ring-bg{stroke:var(--surface2)}
+.plan-ring-fg{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset 0.6s}
+.plan-ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'DM Mono',monospace;line-height:1}
+.plan-ring-pct{font-size:14px;font-weight:700;color:var(--text)}
+.plan-ring-sub{font-size:9px;color:var(--muted);margin-top:2px}
+.plan-card-info{flex:1;min-width:0}
+.plan-card-titlerow{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
+.plan-card-name{font-size:17px;font-weight:600;line-height:1.2;color:var(--text)}
+.plan-card.active .plan-card-name{font-size:18px;font-weight:700}
+.plan-card-meta{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:0.02em;line-height:1.3}
+.plan-card-goal{font-size:12px;color:var(--muted);line-height:1.35;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.plan-card-stats{display:flex;gap:6px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+.plan-card-stat{flex:1;text-align:center;display:flex;flex-direction:column;gap:3px;align-items:center}
+.plan-card-stat-val{font-family:'DM Mono',monospace;font-size:17px;font-weight:700;color:var(--text);line-height:1}
+.plan-card-stat-val .stat-unit{font-size:10px;font-weight:500;color:var(--muted);margin-left:1px}
+.plan-card-stat-lbl{font-size:9px;font-weight:700;color:var(--faint);letter-spacing:0.08em;text-transform:uppercase;line-height:1.1}
+.plan-card-actions{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap}
 .plan-active-badge{flex-shrink:0;display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;background:var(--accent);color:var(--on-accent);letter-spacing:0.06em;text-transform:uppercase}
 .plan-active-badge::before{content:'●';font-size:10px;animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
@@ -528,7 +541,7 @@ function icon(name, size = 18, opts = {}) {
 }
 
 // ─── Build-Version (manuell hochzählen bei Code-Push) ────────────────────
-const APP_VERSION = '2026-05-10-stats-cards';
+const APP_VERSION = '2026-05-10-plans-rings';
 
 // ─── State ───────────────────────────────────────────────────────────────
 let state = {
@@ -760,9 +773,40 @@ function showScreen(name) {
   currentScreen = name;
   state.lastScreen = name;
   save();
-  if (name === 'tracker') renderTracker();
+  if (name === 'tracker') {
+    const ap = state.plans.find(p => p.id === state.activePlanId);
+    if (ap) jumpToTodayWeek(ap);
+    renderTracker();
+    scrollTrackerToToday();
+  }
   if (name === 'plans') renderPlans();
   if (name === 'create') renderCreate();
+}
+
+// Aktive Woche auf die HEUTE-Woche setzen, falls heute innerhalb des Plans liegt
+function jumpToTodayWeek(plan) {
+  if (!plan?.weeks?.length) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+  for (let i = 0; i < plan.weeks.length; i++) {
+    const wStart = dayDate(plan, i, 'Mo');
+    const wEnd = dayDate(plan, i, 'So');
+    if (!wStart || !wEnd) continue;
+    const wEndEnd = new Date(wEnd.getFullYear(), wEnd.getMonth(), wEnd.getDate(), 23, 59, 59);
+    if (today >= wStart && today <= wEndEnd) {
+      if (state.currentWeek[plan.id] !== i) {
+        state.currentWeek[plan.id] = i;
+      }
+      return;
+    }
+  }
+}
+
+// HEUTE-Card ins Sichtfeld scrollen, sobald sie gerendert ist
+function scrollTrackerToToday() {
+  setTimeout(() => {
+    const todayEl = document.querySelector('#screen-tracker .day-card.today');
+    if (todayEl) todayEl.scrollIntoView({behavior:'smooth', block:'center'});
+  }, 90);
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────
@@ -2434,19 +2478,57 @@ function renderPlans() {
     const isActive = plan.id === state.activePlanId;
     const ps = planStart(plan), pe = planEnd(plan);
     const range = (ps && pe) ? `${fmtShort(ps)} – ${fmtFull(pe)}` : `${plan.weeks.length} Wochen`;
+    const stats = calcPlanStats(plan);
+    const targetKm = plan.distance ? (Math.round(plan.distance*10)/10).toString().replace('.',',') : null;
+    // Progress-Ring math (r=26 → c≈163.4)
+    const r = 26, c = 2*Math.PI*r;
+    const dashoffset = c * (1 - pct/100);
+    const cr = plan.coachReview;
+    const coachColor = cr ? (cr.overall>=7?'var(--green)':cr.overall>=5?'var(--amber)':'var(--red)') : '';
     return `
-      <div class="plan-item ${isActive?'active-plan':''}">
-        <div class="plan-item-top">
-          <div class="plan-item-name">${plan.name}</div>
-          ${isActive?'<span class="plan-active-badge">Aktiv</span>':''}
+      <div class="plan-card ${isActive?'active':''}">
+        <div class="plan-card-head">
+          <div class="plan-ring">
+            <svg width="62" height="62" viewBox="0 0 62 62">
+              <circle class="plan-ring-bg" cx="31" cy="31" r="${r}" fill="none" stroke-width="5"/>
+              <circle class="plan-ring-fg" cx="31" cy="31" r="${r}" fill="none" stroke-width="5"
+                      stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${dashoffset.toFixed(1)}"/>
+            </svg>
+            <div class="plan-ring-text">
+              <div class="plan-ring-pct">${pct}%</div>
+              <div class="plan-ring-sub">${done}/${total}</div>
+            </div>
+          </div>
+          <div class="plan-card-info">
+            <div class="plan-card-titlerow">
+              <div class="plan-card-name">${plan.name}</div>
+              ${isActive?'<span class="plan-active-badge">Aktiv</span>':''}
+            </div>
+            <div class="plan-card-meta">${range} · ${plan.weeks.length} Wochen</div>
+            ${plan.goal?`<div class="plan-card-goal">${plan.goal}</div>`:''}
+          </div>
         </div>
-        <div class="plan-item-meta">${range} · ${plan.weeks.length} Wo · ${plan.goal}</div>
-        <div class="plan-progress-track"><div class="plan-progress-fill" style="width:${pct}%"></div></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:5px;gap:8px">
-          <div style="font-size:11px;color:var(--muted)">${done} von ${total} Läufen · ${pct}%</div>
-          ${plan.coachReview ? `<button onclick="event.stopPropagation();showCoachReview(state.plans.find(p=>p.id==='${plan.id}'))" style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);color:${plan.coachReview.overall>=7?'var(--green)':plan.coachReview.overall>=5?'var(--amber)':'var(--red)'};font-family:'DM Mono',monospace;font-size:10px;font-weight:700;cursor:pointer">Coach ${plan.coachReview.overall}/10</button>` : ''}
+        <div class="plan-card-stats">
+          ${targetKm ? `
+            <div class="plan-card-stat">
+              <div class="plan-card-stat-val">${targetKm}<span class="stat-unit">km</span></div>
+              <div class="plan-card-stat-lbl">Ziel</div>
+            </div>` : ''}
+          <div class="plan-card-stat">
+            <div class="plan-card-stat-val">${stats.streak}</div>
+            <div class="plan-card-stat-lbl">Streak</div>
+          </div>
+          <div class="plan-card-stat">
+            <div class="plan-card-stat-val">${stats.daysToEnd ?? '–'}<span class="stat-unit">${stats.daysToEnd === 1 ? 'Tag' : (stats.daysToEnd === null ? '' : 'Tage')}</span></div>
+            <div class="plan-card-stat-lbl">Bis Ziel</div>
+          </div>
+          ${cr ? `
+            <div class="plan-card-stat" onclick="event.stopPropagation();showCoachReview(state.plans.find(p=>p.id==='${plan.id}'))" style="cursor:pointer">
+              <div class="plan-card-stat-val" style="color:${coachColor}">${cr.overall}<span class="stat-unit">/10</span></div>
+              <div class="plan-card-stat-lbl">Coach</div>
+            </div>` : ''}
         </div>
-        <div class="plan-actions">
+        <div class="plan-card-actions">
           ${!isActive
             ? `<button class="plan-btn primary-btn" onclick="activatePlan('${plan.id}')">${icon('power',13)}<span>Aktivieren</span></button>`
             : `<button class="plan-btn" onclick="deactivatePlan()">${icon('power',13)}<span>Deaktivieren</span></button>`}
