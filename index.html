@@ -31,43 +31,45 @@
   --c-danger:#B91C1C;
   --c-info:#1D4ED8;
 
-  /* Theme — Dunkel (Default) */
-  --bg:#0e0e10;--surface:#1a1a1e;--surface2:#242428;--surface3:#2e2e33;
-  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.12);
-  --text:#f0f0f0;--muted:#888;--faint:#444;
-  --accent:#4f8ef7;--accent-soft:rgba(79,142,247,0.15);
-  --green:#3ecf8e;--amber:#f5a623;--purple:#a78bfa;--red:#f87171;--coral:#fb923c;
-  --header-bg:rgba(14,14,16,0.92);--tabs-bg:rgba(14,14,16,0.94);
+  /* Theme — Track (Default, Dark, Volt-Lime-Akzent) */
+  --bg:#0c0d10;--surface:#15171c;--surface2:#1f2229;--surface3:#2a2e37;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#f1f2f5;--muted:#8e94a3;--faint:#4a505c;
+  --accent:#b8ff35;--accent-soft:rgba(184,255,53,0.13);--on-accent:#0c0d10;
+  --green:#3ecf8e;--amber:#f5a623;--purple:#a78bfa;--red:#ff6b6b;--coral:#fb923c;
+  --header-bg:rgba(12,13,16,0.92);--tabs-bg:rgba(12,13,16,0.94);
   --tab-h:72px;
 }
+/* Theme — Sunrise (Hell, warmes Cream + Coral-Akzent) */
 body[data-theme="hell"]{
-  --bg:#f5f5f5;--surface:#ffffff;--surface2:#eef0f3;--surface3:#e3e6eb;
-  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
-  --text:#1a1a1a;--muted:#6b7280;--faint:#a3a8b3;
-  --accent:var(--afo-orange-600);--accent-soft:rgba(255,105,0,0.12);
-  --green:var(--c-ok);--amber:var(--c-warn);--purple:var(--afo-purple);--red:var(--c-danger);--coral:#ea580c;
-  --header-bg:rgba(245,245,245,0.95);--tabs-bg:rgba(245,245,245,0.97);
+  --bg:#fff8f1;--surface:#ffffff;--surface2:#fff0e5;--surface3:#ffe2cf;
+  --border:rgba(73,40,12,0.08);--border2:rgba(255,111,60,0.22);
+  --text:#1c1814;--muted:#6b5d4f;--faint:#b5a899;
+  --accent:#ff6f3c;--accent-soft:rgba(255,111,60,0.12);--on-accent:#ffffff;
+  --green:#0e7c4d;--amber:#b45309;--purple:#7c3aed;--red:#c0392b;--coral:#ea580c;
+  --header-bg:rgba(255,248,241,0.95);--tabs-bg:rgba(255,248,241,0.97);
 }
-/* Theme „all41" — entspricht Portfolio APP Style-Guide-Look (Light, Lila-Akzent + Orange) */
-body[data-theme="all41"]{
-  --bg:#FAFAFB;
-  --surface:#FFFFFF;
-  --surface2:#F4EFFA;
-  --surface3:#E8DCF5;
-  --border:#E5E5EA;
-  --border2:#DDD6FE;
-  --text:#1F1F23;
-  --muted:#6B6B73;
-  --faint:#A0A0AB;
-  --accent:var(--afo-orange-600);
-  --accent-soft:rgba(255,105,0,0.10);
-  --green:var(--c-ok);
-  --amber:var(--c-warn);
-  --purple:var(--afo-purple);
-  --red:var(--afo-red);
-  --coral:var(--afo-orange-500);
-  --header-bg:linear-gradient(135deg,rgba(82,13,145,0.06),rgba(250,250,251,0.96));
-  --tabs-bg:rgba(255,255,255,0.96);
+/* Theme — Pacer (Kühl-Hell, Teal-Akzent) */
+body[data-theme="pacer"]{
+  --bg:#f4f7fb;
+  --surface:#ffffff;
+  --surface2:#e8eef7;
+  --surface3:#d6e0ee;
+  --border:rgba(15,23,42,0.08);
+  --border2:rgba(8,145,178,0.22);
+  --text:#0f172a;
+  --muted:#5b6b80;
+  --faint:#aab7c8;
+  --accent:#0891b2;
+  --accent-soft:rgba(8,145,178,0.12);
+  --on-accent:#ffffff;
+  --green:#0e7c4d;
+  --amber:#b45309;
+  --purple:#6366f1;
+  --red:#c0392b;
+  --coral:#0e7490;
+  --header-bg:rgba(244,247,251,0.95);
+  --tabs-bg:rgba(244,247,251,0.97);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
@@ -85,9 +87,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .tab-label{font-size:10px;font-weight:500;letter-spacing:0.03em}
 
 /* Header */
-.page-header{padding:52px 152px 16px 20px;position:sticky;top:0;background:var(--header-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:10}
-.page-title{font-size:22px;font-weight:600}
-.page-subtitle{font-size:13px;color:var(--muted);margin-top:2px}
+.page-header{padding:18px 20px 16px 20px;position:sticky;top:54px;background:var(--header-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:10}
+.page-title{font-size:28px;font-weight:700;letter-spacing:-0.01em;line-height:1.1}
+.page-subtitle{font-size:13px;color:var(--muted);margin-top:6px}
+.screen{padding-top:54px}
 
 /* Cards */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden}
@@ -103,10 +106,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .progress-sub{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--muted)}
 
 /* Week tabs */
-.week-scroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 16px 2px}
+.week-scroll{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 2px}
 .week-scroll::-webkit-scrollbar{display:none}
-.week-tab{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all 0.15s;position:relative}
-.week-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.week-tab{flex:1 1 auto;min-width:54px;padding:6px 10px;border-radius:20px;font-size:13px;font-weight:500;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all 0.15s;position:relative;text-align:center;white-space:nowrap}
+.week-tab.active{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .week-tab.complete{border-color:var(--green);color:var(--green)}
 .wk-dot{width:5px;height:5px;border-radius:50%;background:var(--green);position:absolute;top:3px;right:3px}
 
@@ -147,7 +150,7 @@ body[data-theme="all41"] .coach{background:linear-gradient(135deg,rgba(82,13,145
 .coach-text{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:10px}
 .coach-actions{display:flex;gap:8px}
 .coach-btn{flex:1;padding:8px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--text);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer}
-.coach-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.coach-btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .coach-btn:disabled{opacity:0.5;cursor:wait}
 
 /* Week summary */
@@ -163,10 +166,14 @@ body[data-theme="all41"] .coach{background:linear-gradient(135deg,rgba(82,13,145
 .day-card.done{background:rgba(62,207,142,0.07);border-color:rgba(62,207,142,0.25)}
 .day-card.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
 .day-card.today .day-title::before{content:'HEUTE';font-family:'DM Mono',monospace;font-size:9px;font-weight:600;color:var(--accent);background:rgba(79,142,247,0.15);padding:2px 6px;border-radius:4px;margin-right:6px;letter-spacing:0.05em;vertical-align:1px}
+.day-card.missed{border-color:rgba(248,113,113,0.45);background:rgba(248,113,113,0.05)}
+.day-card.missed .day-title::before{content:'VERPASST';font-family:'DM Mono',monospace;font-size:9px;font-weight:700;color:var(--red);background:rgba(248,113,113,0.15);padding:2px 6px;border-radius:4px;margin-right:6px;letter-spacing:0.05em;vertical-align:1px}
 .day-card.rest{opacity:0.4;pointer-events:none}
 .day-card.rest.today{opacity:0.7;pointer-events:auto}
 .day-main{padding:12px 14px;display:flex;align-items:flex-start;gap:12px;cursor:pointer}
-.check{width:24px;height:24px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.check{width:28px;height:28px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;cursor:pointer;background:var(--surface2)}
+.check:hover{border-color:var(--green);background:rgba(62,207,142,0.08)}
+.check:active{transform:scale(0.92)}
 .done .check{background:var(--green);border-color:var(--green)}
 .check-icon{display:none}
 .done .check-icon{display:block}
@@ -231,7 +238,7 @@ body[data-theme="all41"] .plan-item.active-plan{background:linear-gradient(135de
 .plan-item-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:10px}
 .plan-item-name{font-size:15px;font-weight:500}
 .active-plan .plan-item-name{font-size:17px;font-weight:600}
-.plan-active-badge{flex-shrink:0;display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;background:var(--accent);color:#fff;letter-spacing:0.06em;text-transform:uppercase}
+.plan-active-badge{flex-shrink:0;display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;background:var(--accent);color:var(--on-accent);letter-spacing:0.06em;text-transform:uppercase}
 .plan-active-badge::before{content:'●';font-size:10px;animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 .plan-item-meta{font-size:12px;color:var(--muted)}
@@ -239,7 +246,7 @@ body[data-theme="all41"] .plan-item.active-plan{background:linear-gradient(135de
 .plan-progress-fill{height:100%;background:var(--green);border-radius:2px}
 .plan-actions{display:flex;gap:8px;margin-top:10px}
 .plan-btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:7px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text);font-family:inherit;font-size:13px;cursor:pointer}
-.plan-btn.primary-btn{background:var(--accent);border-color:var(--accent);color:#fff}
+.plan-btn.primary-btn{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .plan-btn.danger-btn{color:var(--red);border-color:rgba(248,113,113,0.3)}
 
 /* Legend */
@@ -263,7 +270,7 @@ body[data-theme="all41"] .plan-item.active-plan{background:linear-gradient(135de
 .wd-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
 .wd-pill{position:relative;cursor:pointer;background:var(--surface);border:1px solid var(--border2);border-radius:9px;padding:8px 0;text-align:center;font-size:12px;font-weight:600;color:var(--muted);transition:all 0.12s}
 .wd-pill input{position:absolute;opacity:0;pointer-events:none}
-.wd-pill:has(input:checked){background:var(--accent);border-color:var(--accent);color:#fff}
+.wd-pill:has(input:checked){background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .wd-pill:hover{border-color:var(--accent)}
 
 /* Create screen */
@@ -274,7 +281,7 @@ body[data-theme="all41"] .plan-item.active-plan{background:linear-gradient(135de
 .form-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
 .form-textarea{height:80px;resize:none}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.generate-btn{width:100%;padding:14px;border-radius:12px;background:var(--accent);border:none;color:#fff;font-family:inherit;font-size:16px;font-weight:600;cursor:pointer;transition:opacity 0.2s;margin-top:4px}
+.generate-btn{width:100%;padding:14px;border-radius:12px;background:var(--accent);border:none;color:var(--on-accent);font-family:inherit;font-size:16px;font-weight:600;cursor:pointer;transition:opacity 0.2s;margin-top:4px}
 .generate-btn:disabled{opacity:0.5}
 .api-note{font-size:11px;color:var(--faint);text-align:center;margin-top:8px;line-height:1.5}
 .generating-state{text-align:center;padding:40px 20px}
@@ -291,7 +298,7 @@ body[data-theme="all41"] .plan-item.active-plan{background:linear-gradient(135de
 .api-desc{font-size:13px;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:24px}
 .api-link{color:var(--accent);text-decoration:none}
 .api-input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:12px 14px;margin-bottom:12px}
-.api-btn{width:100%;padding:13px;border-radius:10px;background:var(--accent);border:none;color:#fff;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer}
+.api-btn{width:100%;padding:13px;border-radius:10px;background:var(--accent);border:none;color:var(--on-accent);font-family:inherit;font-size:15px;font-weight:600;cursor:pointer}
 .api-skip{width:100%;padding:10px;border-radius:10px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:inherit;font-size:14px;cursor:pointer;margin-top:8px}
 
 /* Empty state */
@@ -300,17 +307,41 @@ body[data-theme="all41"] .plan-item.active-plan{background:linear-gradient(135de
 .empty-text{font-size:15px;font-weight:500;margin-bottom:6px;color:var(--text)}
 .empty-sub{font-size:13px;color:var(--muted)}
 
-/* Theme picker */
-.theme-btn{position:fixed;top:54px;right:14px;width:38px;height:38px;border-radius:19px;background:var(--surface);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:50;color:var(--text);font-size:16px;-webkit-appearance:none;appearance:none;font-family:inherit}
-.theme-btn:active{transform:scale(0.94)}
-.reload-btn{position:fixed;top:54px;right:60px;width:38px;height:38px;border-radius:19px;background:var(--surface);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:50;color:var(--text);font-size:16px;-webkit-appearance:none;appearance:none;font-family:inherit}
-.reload-btn:active{transform:scale(0.94)}
-.reload-btn.spinning svg{animation:spin 0.6s linear}
-.help-btn{position:fixed;top:54px;right:106px;width:38px;height:38px;border-radius:19px;background:var(--surface);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:50;color:var(--text);font-size:16px;-webkit-appearance:none;appearance:none;font-family:inherit}
-.help-btn:active{transform:scale(0.94)}
+/* App Brand Header (oben fix, alle Screens) */
+.brand-bar{position:fixed;top:0;left:0;right:0;height:54px;padding-top:env(safe-area-inset-top);background:var(--header-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:60;display:flex;align-items:center;padding-left:16px;padding-right:10px;gap:10px}
+.brand-logo{width:30px;height:30px;flex-shrink:0;color:var(--accent);display:flex;align-items:center;justify-content:center}
+.brand-logo svg{width:100%;height:100%}
+.brand-name{font-family:'DM Sans',sans-serif;font-size:17px;font-weight:800;letter-spacing:0.18em;color:var(--text);text-transform:uppercase;flex:1;line-height:1}
+.brand-name .accent{color:var(--accent)}
+.brand-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.brand-btn{width:34px;height:34px;border-radius:50%;background:transparent;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);-webkit-appearance:none;appearance:none;font-family:inherit;transition:background 0.15s,border-color 0.15s}
+.brand-btn:hover{background:var(--surface2);border-color:var(--border2)}
+.brand-btn:active{transform:scale(0.94)}
+.brand-btn.spinning svg{animation:spin 0.6s linear}
+/* Legacy-Klassen — verstecke alte fixed-Buttons, falls noch im DOM */
+.theme-btn,.reload-btn,.help-btn{display:none}
 .theme-sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:flex-end;justify-content:center}
 .theme-sheet-bg.open{display:flex}
 .theme-sheet{width:100%;max-width:520px;background:var(--surface);border-top-left-radius:20px;border-top-right-radius:20px;padding:18px 16px calc(20px + env(safe-area-inset-bottom));border-top:1px solid var(--border)}
+.detail-sheet{width:100%;max-width:680px;background:var(--surface);border-top-left-radius:20px;border-top-right-radius:20px;padding:20px 18px calc(24px + env(safe-area-inset-bottom));border-top:1px solid var(--border);max-height:92vh;overflow-y:auto}
+.detail-sheet .pace-table{font-size:18px;margin-top:14px}
+.detail-sheet .pace-table th{font-size:11px;padding:8px 8px}
+.detail-sheet .pace-table td{font-size:18px;padding:11px 8px}
+.detail-sheet .pace-table .pt-kmh{font-size:22px;font-weight:700}
+.detail-sheet .pace-table .pt-inc{font-size:16px}
+.detail-sheet .pace-table .pt-time{font-size:18px}
+.detail-sheet .pace-table .pt-mini{font-size:11px}
+.detail-sheet .pace-table tr.pt-total td{font-size:13px;padding-top:12px}
+.detail-sheet .pace-table tr.pt-total .pt-time{font-size:22px}
+.detail-sheet .pace-table .pt-fallback{font-size:14px;padding:10px}
+.detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px}
+.detail-meta{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace}
+.detail-title{font-size:22px;font-weight:600;line-height:1.25;margin-top:6px;margin-bottom:4px}
+.detail-actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+.detail-btn{flex:1;min-width:140px;padding:12px 14px;border-radius:10px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.detail-btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+.detail-btn.danger{background:transparent;border-color:rgba(248,113,113,0.5);color:var(--red)}
+.detail-btn:active{transform:scale(0.98)}
 .theme-sheet-title{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px;text-align:center}
 .theme-options{display:flex;flex-direction:column;gap:10px}
 .theme-option{display:flex;align-items:center;gap:14px;padding:12px;border:1px solid var(--border);border-radius:12px;background:transparent;color:var(--text);font-family:inherit;cursor:pointer;text-align:left;width:100%}
@@ -330,10 +361,42 @@ body[data-theme="all41"] .plan-item.active-plan{background:linear-gradient(135de
 .no-plan-icon{font-size:48px;margin-bottom:16px}
 .no-plan-text{font-size:18px;font-weight:600;margin-bottom:8px}
 .no-plan-sub{font-size:14px;color:var(--muted);margin-bottom:24px}
-.no-plan-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:var(--accent);border-radius:12px;color:#fff;font-weight:600;font-size:15px;cursor:pointer;border:none;font-family:inherit}
+.no-plan-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:var(--accent);border-radius:12px;color:var(--on-accent);font-weight:600;font-size:15px;cursor:pointer;border:none;font-family:inherit}
 </style>
 </head>
 <body>
+
+<!-- App Brand Header -->
+<div class="brand-bar">
+  <div class="brand-logo">
+    <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 78 Q 35 78 50 50 Q 65 22 88 22"/>
+      <circle cx="88" cy="22" r="6" fill="currentColor"/>
+    </svg>
+  </div>
+  <div class="brand-name">LAUF<span class="accent">PLAN</span></div>
+  <div class="brand-actions">
+    <button class="brand-btn" onclick="doReload(this)" aria-label="App neu laden">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"/>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+      </svg>
+    </button>
+    <button class="brand-btn" onclick="openThemeSheet()" aria-label="Theme wählen">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/>
+      </svg>
+    </button>
+    <button class="brand-btn" onclick="openHelpSheet()" aria-label="Hilfe">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    </button>
+  </div>
+</div>
 
 <!-- Screen: Tracker -->
 <div class="screen active" id="screen-tracker">
@@ -358,31 +421,6 @@ body[data-theme="all41"] .plan-item.active-plan{background:linear-gradient(135de
   <div id="create-content"></div>
 </div>
 
-<!-- Hilfe -->
-<button class="help-btn" onclick="openHelpSheet()" aria-label="Hilfe">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="12" cy="12" r="10"/>
-    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-    <line x1="12" y1="17" x2="12.01" y2="17"/>
-  </svg>
-</button>
-
-<!-- Reload -->
-<button class="reload-btn" onclick="doReload(this)" aria-label="App neu laden">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <polyline points="23 4 23 10 17 10"/>
-    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-  </svg>
-</button>
-
-<!-- Theme Picker -->
-<button class="theme-btn" onclick="openThemeSheet()" aria-label="Theme wählen">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="12" cy="12" r="9"/>
-    <path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/>
-  </svg>
-</button>
-
 <div class="theme-sheet-bg" id="theme-sheet-bg" onclick="if(event.target===this)closeThemeSheet()">
   <div class="theme-sheet">
     <div class="theme-sheet-title">Theme wählen</div>
@@ -396,6 +434,13 @@ body[data-theme="all41"] .plan-item.active-plan{background:linear-gradient(135de
   <div class="theme-sheet" style="max-height:85vh;overflow-y:auto">
     <div class="theme-sheet-title">Plan bearbeiten</div>
     <div id="planedit-body"></div>
+  </div>
+</div>
+
+<!-- Day-Detail Sheet -->
+<div class="theme-sheet-bg" id="day-detail-bg" onclick="if(event.target===this)closeDayDetail()">
+  <div class="detail-sheet">
+    <div id="day-detail-body"></div>
   </div>
 </div>
 
@@ -457,7 +502,7 @@ function icon(name, size = 18, opts = {}) {
 }
 
 // ─── Build-Version (manuell hochzählen bei Code-Push) ────────────────────
-const APP_VERSION = '2026-05-06-22:55';
+const APP_VERSION = '2026-05-10-brand-themes';
 
 // ─── State ───────────────────────────────────────────────────────────────
 let state = {
@@ -474,9 +519,9 @@ let state = {
 
 // ─── Themes ──────────────────────────────────────────────────────────────
 const THEMES = [
-  { id:'dunkel', name:'Dunkel', desc:'Klassisches Dark-Theme, Blau-Akzent', swatch:['#0e0e10','#1a1a1e','#4f8ef7'] },
-  { id:'hell',   name:'Hell',   desc:'Helles Theme, Orange-Akzent',         swatch:['#f5f5f5','#ffffff','#FF6900'] },
-  { id:'all41',  name:'All for One', desc:'Style-Guide-Look: Light · Lila · Orange', swatch:['#FAFAFB','#F4EFFA','#FF6900'] }
+  { id:'dunkel', name:'Track',   desc:'Dark · Volt-Lime · sportlich, fokussiert',   swatch:['#0c0d10','#15171c','#b8ff35'] },
+  { id:'hell',   name:'Sunrise', desc:'Warm-Hell · Coral · Morgenlauf-Stimmung',    swatch:['#fff8f1','#fff0e5','#ff6f3c'] },
+  { id:'pacer',  name:'Pacer',   desc:'Kühl-Hell · Teal · klar bei Tageslicht',     swatch:['#f4f7fb','#e8eef7','#0891b2'] }
 ];
 
 function applyTheme(id) {
@@ -486,7 +531,7 @@ function applyTheme(id) {
   // Status-Bar-Farbe anpassen (iOS Standalone)
   const meta = document.querySelector('meta[name=theme-color]');
   if (meta) {
-    const colors = { dunkel:'#0e0e10', hell:'#f5f5f5', all41:'#FAFAFB' };
+    const colors = { dunkel:'#0c0d10', hell:'#fff8f1', pacer:'#f4f7fb' };
     meta.setAttribute('content', colors[id] || '#0e0e10');
   }
 }
@@ -566,7 +611,7 @@ function openHelpSheet() {
       <p style="margin:0 0 8px;color:var(--muted);font-size:12px">
         Pläne, Fortschritt und Feedback sind gerätelokal. Mit Export/Import übertragen:
       </p>
-      <button class="generate-btn" style="margin-bottom:6px;background:var(--accent);color:#fff;border:none" onclick="exportPlanData()">Plan-Daten exportieren (Zwischenablage)</button>
+      <button class="generate-btn" style="margin-bottom:6px;background:var(--accent);color:var(--on-accent);border:none" onclick="exportPlanData()">Plan-Daten exportieren (Zwischenablage)</button>
       <button class="generate-btn" style="margin-bottom:14px;background:var(--surface2);color:var(--text);border:1px solid var(--border2)" onclick="openImportDialog()">Plan-Daten importieren</button>
       <p style="margin:0 0 16px;color:var(--faint);font-size:11px;line-height:1.4">
         <b>Workflow:</b> Auf Gerät A → Export → JSON wird in Zwischenablage kopiert → per AirDrop/Notiz/Mail aufs Gerät B → dort App → Import → JSON einfügen → fertig.
@@ -890,27 +935,42 @@ function parsePaceLine(str, defaultIncline, paceFactorVal) {
   // Distanz / Dauer
   let distanceLabel = null, timeSec = null;
   let m;
-  // Helper: Distanz immer als "X,X km" oder "XXX m" je nach Größe
-  const formatDist = (km) => km >= 1
-    ? `${(Math.round(km*10)/10).toString().replace('.',',')} km`
-    : `${Math.round(km*1000)} m`;
+  // Helper: Distanz auf 100m glätten (Laufband-Standard) und formatiert ausgeben.
+  // Gibt {label, km_snapped} zurück — Zeit wird aus gerundeter Distanz neu berechnet,
+  // damit Anzeige und Laufband-Eingabe identisch sind.
+  const snapTo100m = (km) => {
+    const meters = Math.max(100, Math.round(km * 1000 / 100) * 100);
+    return meters / 1000;
+  };
+  const formatDist = (km) => {
+    const snapped = snapTo100m(km);
+    return snapped >= 1
+      ? { label: `${(Math.round(snapped*10)/10).toString().replace('.',',')} km`, km: snapped }
+      : { label: `${Math.round(snapped*1000)} m`, km: snapped };
+  };
 
   if ((m = s.match(/^(\d+(?:[.,]\d+)?)\s*km/i))) {
     const km = parseFloat(m[1].replace(',','.'));
-    distanceLabel = formatDist(km);
-    timeSec = (km / kmh) * 3600;
+    const fd = formatDist(km);
+    distanceLabel = fd.label;
+    timeSec = (fd.km / kmh) * 3600;
   } else if ((m = s.match(/^(\d+)\s*m\b/i))) {
     const meters = parseInt(m[1]);
-    distanceLabel = formatDist(meters / 1000);
-    timeSec = (meters / 1000 / kmh) * 3600;
+    const fd = formatDist(meters / 1000);
+    distanceLabel = fd.label;
+    timeSec = (fd.km / kmh) * 3600;
   } else if ((m = s.match(/^(\d+(?:[.,]\d+)?)\s*Min/i))) {
-    // Zeitbasiert → Distanz aus Geschwindigkeit ableiten (User braucht IMMER Distanz)
-    timeSec = parseFloat(m[1].replace(',','.')) * 60;
-    distanceLabel = formatDist((kmh * timeSec) / 3600);
+    // Zeitbasiert → Distanz aus Geschwindigkeit ableiten, dann auf 100m glätten,
+    // Zeit aus geglätteter Distanz neu setzen (am Laufband zählt die Distanz)
+    const targetSec = parseFloat(m[1].replace(',','.')) * 60;
+    const fd = formatDist((kmh * targetSec) / 3600);
+    distanceLabel = fd.label;
+    timeSec = (fd.km / kmh) * 3600;
   } else if ((m = s.match(/^(\d+)\s*s/i))) {
-    // Zeitbasiert (Sekunden) → Distanz ableiten
-    timeSec = parseInt(m[1]);
-    distanceLabel = formatDist((kmh * timeSec) / 3600);
+    const targetSec = parseInt(m[1]);
+    const fd = formatDist((kmh * targetSec) / 3600);
+    distanceLabel = fd.label;
+    timeSec = (fd.km / kmh) * 3600;
   } else {
     distanceLabel = '?';
   }
@@ -971,32 +1031,35 @@ function renderPaceTable(paces, defaultIncline, paceFactorVal, basePaceVal) {
 function renderLangTable(lang, defaultIncline, paceFactorVal) {
   const f = paceFactorVal ?? 1.0;
   const incl = defaultIncline ?? 1;
+  // Distanzen aus Plan-Strings ziehen und auf 100m glätten — Zeit ergibt sich daraus
+  const snap100 = (km) => Math.max(0.1, Math.round(km * 10) / 10);
+  const fmtKm = (km) => `${(Math.round(km*10)/10).toString().replace('.',',')} km`;
+  const parseKm = (raw) => parseFloat(String(raw).replace(/[^\d.,]/g,'').replace(',','.')) || 0;
   const phases = [
-    { label: 'Einlaufen', km: lang.p1.km, kmh: parseFloat(String(lang.p1.s).replace(',','.')) * f },
-    { label: 'Mitte',     km: lang.p2.km, kmh: parseFloat(String(lang.p2.s).replace(',','.')) * f },
-    { label: 'Ausklang',  km: lang.p3.km, kmh: parseFloat(String(lang.p3.s).replace(',','.')) * f }
+    { label: 'Einlaufen', km: snap100(parseKm(lang.p1.km)), kmh: parseFloat(String(lang.p1.s).replace(',','.')) * f },
+    { label: 'Mitte',     km: snap100(parseKm(lang.p2.km)), kmh: parseFloat(String(lang.p2.s).replace(',','.')) * f },
+    { label: 'Ausklang',  km: snap100(parseKm(lang.p3.km)), kmh: parseFloat(String(lang.p3.s).replace(',','.')) * f }
   ];
   // Sind alle 3 Phasen identisch im Tempo? Dann eine einzige Zeile mit Total-Distanz (gleichmäßiger Lauf)
   const allSamePace = Math.abs(phases[0].kmh - phases[1].kmh) < 0.05 && Math.abs(phases[1].kmh - phases[2].kmh) < 0.05;
   let rows = '';
   let totalSec = 0;
   if (allSamePace) {
-    const totalKm = phases.reduce((acc, ph) => acc + (parseFloat(String(ph.km).replace(/[^\d.,]/g,'').replace(',','.')) || 0), 0);
+    const totalKm = snap100(phases.reduce((acc, ph) => acc + ph.km, 0));
     const t = (totalKm / phases[0].kmh) * 3600;
     totalSec = t;
     rows = `<tr>
-      <td class="pt-dist">${(Math.round(totalKm*10)/10).toString().replace('.',',')} km <span class="pt-mini">gleichmäßig</span></td>
+      <td class="pt-dist">${fmtKm(totalKm)} <span class="pt-mini">gleichmäßig</span></td>
       <td class="pt-kmh">${phases[0].kmh.toFixed(1)}</td>
       <td class="pt-inc">${incl}%</td>
       <td class="pt-time">${fmtDuration(t)}</td>
     </tr>`;
   } else {
     rows = phases.map(r => {
-      const km = parseFloat(String(r.km).replace(/[^\d.,]/g,'').replace(',','.')) || 0;
-      const t = (km / r.kmh) * 3600;
+      const t = (r.km / r.kmh) * 3600;
       totalSec += t;
       return `<tr>
-        <td class="pt-dist">${r.km} <span class="pt-mini">${r.label}</span></td>
+        <td class="pt-dist">${fmtKm(r.km)} <span class="pt-mini">${r.label}</span></td>
         <td class="pt-kmh">${r.kmh.toFixed(1)}</td>
         <td class="pt-inc">${incl}%</td>
         <td class="pt-time">${fmtDuration(t)}</td>
@@ -2053,11 +2116,12 @@ function renderTracker() {
         <button class="fb-pill act-hard ${fbVal==='hard'?'on':''}" onclick="setFeedback('${plan.id}',${wIdx},${idx},'hard')">${icon('flame',12)}<span>hart</span></button>
       </div>` : '';
 
+    const isMissed = !isDone && !isToday && dDate && (dDate < new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate()));
     return `
-      <div class="day-card ${isDone?'done':''} ${isToday?'today':''}">
-        <div class="day-main" onclick="toggleDone('${plan.id}',${wIdx},${idx})">
-          <div class="check">
-            <svg class="check-icon" width="12" height="9" viewBox="0 0 12 9" fill="none">
+      <div class="day-card ${isDone?'done':''} ${isToday?'today':''} ${isMissed?'missed':''}">
+        <div class="day-main" onclick="openDayDetail('${plan.id}',${wIdx},${idx})">
+          <div class="check" onclick="event.stopPropagation();toggleDone('${plan.id}',${wIdx},${idx})" title="Erledigt abhaken">
+            <svg class="check-icon" width="14" height="11" viewBox="0 0 12 9" fill="none">
               <path d="M1 4.5L4.5 8L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
@@ -2079,7 +2143,7 @@ function renderTracker() {
   const weekRange = (wStart && wEnd) ? ` · ${fmtShort(wStart)} – ${fmtShort(wEnd)}` : '';
 
   el.innerHTML = `
-    <div style="padding:52px 152px 12px 20px;position:sticky;top:0;background:var(--header-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:10">
+    <div style="padding:18px 20px 12px 20px;position:sticky;top:54px;background:var(--header-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:10">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <div>
           <div style="font-size:20px;font-weight:600">${plan.name}</div>
@@ -2173,6 +2237,80 @@ function toggleDone(planId, wIdx, dayIdx) {
   }
   save();
   renderTracker();
+  // Wenn das Detail-Sheet gerade offen ist, neu rendern damit Status & Feedback aktualisiert sind
+  if (document.getElementById('day-detail-bg').classList.contains('open')) {
+    openDayDetail(planId, wIdx, dayIdx);
+  }
+}
+
+function openDayDetail(planId, wIdx, dayIdx) {
+  const plan = state.plans.find(p => p.id === planId);
+  if (!plan) return;
+  const w = plan.weeks[wIdx];
+  if (!w) return;
+  const trainings = w.days.filter(x => x.type !== 'rest');
+  const d = trainings[dayIdx];
+  if (!d) return;
+  const dKey = `${planId}-${wIdx}-${dayIdx}`;
+  const isDone = !!state.done[dKey];
+  const dpf = isDone ? ((state.donePace && state.donePace[dKey] != null) ? state.donePace[dKey] : 1.0) : paceFactor(plan);
+  const planIncline = plan.incline ?? 1;
+  const dDate = dayDate(plan, wIdx, d.tag);
+  const dDateStr = dDate ? fmtFull(dDate) : '';
+  const todayD = new Date();
+  const isToday = dDate ? isSameDate(dDate, todayD) : false;
+  const isMissed = !isDone && !isToday && dDate && (dDate < new Date(todayD.getFullYear(), todayD.getMonth(), todayD.getDate()));
+  const statusBadge = isDone
+    ? `<span style="font-size:11px;font-weight:700;color:var(--green);background:rgba(62,207,142,0.15);padding:4px 10px;border-radius:6px;letter-spacing:0.04em">ERLEDIGT</span>`
+    : isMissed
+      ? `<span style="font-size:11px;font-weight:700;color:var(--red);background:rgba(248,113,113,0.15);padding:4px 10px;border-radius:6px;letter-spacing:0.04em">VERPASST</span>`
+      : isToday
+        ? `<span style="font-size:11px;font-weight:700;color:var(--accent);background:rgba(79,142,247,0.15);padding:4px 10px;border-radius:6px;letter-spacing:0.04em">HEUTE</span>`
+        : `<span style="font-size:11px;font-weight:600;color:var(--muted);background:var(--surface2);padding:4px 10px;border-radius:6px;letter-spacing:0.04em">GEPLANT</span>`;
+
+  const paces    = d.paces ? renderPaceTable(d.paces, planIncline, dpf, plan.basePace) : '';
+  const langBlock = d.lang  ? renderLangTable(d.lang, planIncline, dpf) : '';
+  const kinoBlock = d.kinomap ? `
+    <div class="kinomap-box" style="margin-top:14px">
+      <div class="kino-head" style="color:var(--accent)">${icon('play', 13)}<span class="kino-tag">Kinomap</span></div>
+      <div class="kino-city" style="font-size:15px">${d.kinomap.city}</div>
+      <span class="kino-search">${d.kinomap.search}</span>
+      <div class="kino-tip">${d.kinomap.tip}</div>
+    </div>` : '';
+
+  const fbVal = state.feedback?.[dKey] || null;
+  const fbBlock = isDone ? `
+    <div class="fb-row" style="margin-top:16px">
+      <span class="fb-lbl">War's:</span>
+      <button class="fb-pill act-easy ${fbVal==='easy'?'on':''}" onclick="setFeedback('${planId}',${wIdx},${dayIdx},'easy');openDayDetail('${planId}',${wIdx},${dayIdx})">${icon('coffee',12)}<span>easy</span></button>
+      <button class="fb-pill act-ok ${fbVal==='ok'?'on':''}" onclick="setFeedback('${planId}',${wIdx},${dayIdx},'ok');openDayDetail('${planId}',${wIdx},${dayIdx})">${icon('check',12)}<span>passt</span></button>
+      <button class="fb-pill act-hard ${fbVal==='hard'?'on':''}" onclick="setFeedback('${planId}',${wIdx},${dayIdx},'hard');openDayDetail('${planId}',${wIdx},${dayIdx})">${icon('flame',12)}<span>hart</span></button>
+    </div>` : '';
+
+  const toggleLabel = isDone ? 'Erledigt zurücknehmen' : 'Als erledigt markieren';
+  const toggleClass = isDone ? 'detail-btn danger' : 'detail-btn primary';
+
+  document.getElementById('day-detail-body').innerHTML = `
+    <div class="detail-head">
+      <div>
+        <div class="detail-meta">${d.tag}${dDateStr?' · '+dDateStr:''} · ${badgeLabel(d.type)}</div>
+        <div class="detail-title">${d.title}</div>
+      </div>
+      <div>${statusBadge}</div>
+    </div>
+    ${paces}
+    ${langBlock}
+    ${kinoBlock}
+    ${fbBlock}
+    <div class="detail-actions">
+      <button class="${toggleClass}" onclick="toggleDone('${planId}',${wIdx},${dayIdx})">${toggleLabel}</button>
+      <button class="detail-btn" onclick="closeDayDetail()">Schließen</button>
+    </div>`;
+  document.getElementById('day-detail-bg').classList.add('open');
+}
+
+function closeDayDetail() {
+  document.getElementById('day-detail-bg').classList.remove('open');
 }
 
 // ─── Plans ────────────────────────────────────────────────────────────────
@@ -2341,10 +2479,23 @@ function openPlanEdit(id) {
       <div class="pe-help">Freitext für die KI bei Verlängerungen. Beispiele: „linkes Knie reizbar — keine Sprints, längere Pausen"; „Achillessehne empfindlich — nur weiche Pace-Übergänge". Bleibt leer wenn nichts.</div>
     </div>
     <div class="form-group">
-      <label class="form-label" style="color:var(--faint)">Trainingstage / Wochenanzahl</label>
+      <label class="form-label">Trainingstage</label>
+      <div class="wd-grid">
+        ${['Mo','Di','Mi','Do','Fr','Sa','So'].map(d => `<label class="wd-pill"><input type="checkbox" class="pe-wd" value="${d}" ${(p.weekdays||['Mo','Mi','Fr','Sa']).includes(d)?'checked':''}><span>${d}</span></label>`).join('')}
+      </div>
+      <div class="pe-help">Anzahl muss gleich bleiben (${(p.weeks?.[0]?.days||[]).filter(d=>d.type!=='rest').length} Trainingstage). Sessions werden in Wochenreihenfolge auf die neuen Tage gemappt — Long Run landet auf dem unten gewählten Tag.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Langer Lauf an</label>
+      <div class="wd-grid">
+        ${['Mo','Di','Mi','Do','Fr','Sa','So'].map(d => `<label class="wd-pill wd-radio"><input type="radio" name="pe-longrun" value="${d}" ${(p.longRunDay||'Sa')===d?'checked':''}><span>${d}</span></label>`).join('')}
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="color:var(--faint)">Wochenanzahl</label>
       <div style="font-size:11px;color:var(--muted);background:var(--surface2);padding:8px 10px;border-radius:8px">
-        ${(p.weekdays||['Mo','Mi','Fr','Sa']).join(' · ')} · ${p.weeks?.length||0} Wochen · Langer Lauf: ${p.longRunDay||'Sa'}<br>
-        <span style="color:var(--faint);font-size:10px">Diese Plan-Struktur lässt sich nicht ohne neuen Plan ändern.</span>
+        ${p.weeks?.length||0} Wochen<br>
+        <span style="color:var(--faint);font-size:10px">Wochenanzahl ändert sich nur durch KI-Verlängerung oder neuen Plan.</span>
       </div>
     </div>
     <div style="display:flex;gap:8px;margin-top:18px">
@@ -2403,6 +2554,34 @@ function savePlanEdit() {
     const oldFactor = paceFactor(p);
     p.basePace = newBase;
     p.paceFactor = oldFactor * (newBase / oldBase);
+  }
+
+  // Trainingstage / Long-Run-Day neu mappen
+  const wkOrder = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+  const newWds = Array.from(document.querySelectorAll('.pe-wd:checked')).map(c => c.value);
+  let newLrd = document.querySelector('input[name=pe-longrun]:checked')?.value || p.longRunDay || 'Sa';
+  if (newWds.length && p.weeks?.length) {
+    const sortedNew = newWds.slice().sort((a,b) => wkOrder.indexOf(a) - wkOrder.indexOf(b));
+    const oldTrainCount = p.weeks[0].days.filter(d => d.type !== 'rest').length;
+    if (sortedNew.length !== oldTrainCount) {
+      alert(`Anzahl Trainingstage muss gleich bleiben.\nAktuell: ${oldTrainCount} · gewählt: ${sortedNew.length}.\nFür andere Anzahl bitte neuen Plan erstellen.`);
+      return;
+    }
+    if (!sortedNew.includes(newLrd)) newLrd = sortedNew[sortedNew.length - 1];
+    const otherTags = sortedNew.filter(t => t !== newLrd);
+    p.weeks.forEach(w => {
+      const trainings = w.days.filter(d => d.type !== 'rest');
+      const rests     = w.days.filter(d => d.type === 'rest');
+      const langD     = trainings.find(d => d.type === 'lang');
+      const otherTr   = trainings.filter(d => d.type !== 'lang');
+      otherTr.forEach((d, i) => { d.tag = otherTags[i] || otherTags[otherTags.length - 1]; });
+      if (langD) langD.tag = newLrd;
+      const restTags = wkOrder.filter(t => !sortedNew.includes(t));
+      rests.forEach((d, i) => { d.tag = restTags[i] || restTags[restTags.length - 1] || 'So'; });
+      w.days = [...trainings, ...rests].sort((a,b) => wkOrder.indexOf(a.tag) - wkOrder.indexOf(b.tag));
+    });
+    p.weekdays = sortedNew;
+    p.longRunDay = newLrd;
   }
 
   save();
@@ -2485,7 +2664,16 @@ VOR PLAN-AUSGABE: Selbst-Check (jeder Punkt wird sonst vom Reviewer abgestraft)
 - Easy-Anteil unter 80 % der Wochen-km → ÜBERARBEITEN
 - Tempo/Intervall/Sprint-Session OHNE Warm-up als erste Pace-Zeile → ÜBERARBEITEN
 - Tempo/Intervall/Sprint-Session OHNE Cool-down als letzte Pace-Zeile → ÜBERARBEITEN
-- Strides-Tag OHNE Cool-down nach den Strides → ÜBERARBEITEN`;
+- Strides-Tag OHNE Cool-down nach den Strides → ÜBERARBEITEN
+
+10. **LAUFBAND-100m-REGEL (PFLICHT):** Alle Distanzen MÜSSEN in 100-m-Schritten sein.
+   → Erlaubt: 100m, 200m, 300m, 400m, 500m, 600m, 800m, 1000m, 1,2 km, 1,5 km, 2 km, 2,5 km usw.
+   → Erlaubt sind auch 0,5 km / 1,5 km / 2,5 km (= 500m / 1500m / 2500m).
+   → VERBOTEN: 113m, 250m, 333m, 1,3 km nur wenn das eigentlich 1300m sind (ok), aber NIEMALS 1,32 km oder krumme Zwischenwerte.
+   → Phasen p1/p2/p3 im Long Run ebenfalls in 100m-Schritten (z.B. "2,0 km", "1,5 km", "1,0 km").
+   → Pausen-Distanzen ("Pause: 200m") in 100m-Schritten.
+   → Bei Strides/Sprints: 100m oder 200m, NIEMALS dazwischen.
+   → Wenn eine Berechnung krumme Werte ergibt, IMMER auf den nächsten 100m-Schritt runden.`;
 
 function buildPlanPrompt(o) {
   const hasTargetPace = !!o.targetPaceSecPerKm;
@@ -2768,7 +2956,7 @@ function importPlanFromJson() {
         <div style="display:flex;justify-content:center;color:var(--green);margin-bottom:16px">${icon('check',56,{strokeWidth:2.5})}</div>
         <div class="generating-text" style="color:var(--green);font-size:18px;font-weight:600">${newPlan.name} importiert!</div>
         <div class="generating-sub" style="margin-bottom:24px">${newPlan.weeks.length} Wochen · automatisch aktiviert</div>
-        <button style="padding:12px 28px;background:var(--accent);border:none;border-radius:12px;color:#fff;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer" onclick="showScreen('tracker')">Zum Plan</button>
+        <button style="padding:12px 28px;background:var(--accent);border:none;border-radius:12px;color:var(--on-accent);font-family:inherit;font-size:15px;font-weight:600;cursor:pointer" onclick="showScreen('tracker')">Zum Plan</button>
       </div>`;
   } catch(e) {
     showError('JSON konnte nicht gelesen werden: ' + e.message);
@@ -3028,7 +3216,7 @@ async function generatePlan() {
         <div style="display:flex;justify-content:center;color:var(--green);margin-bottom:16px">${icon('check',56,{strokeWidth:2.5})}</div>
         <div class="generating-text" style="color:var(--green);font-size:18px;font-weight:600">${newPlan.name} erstellt!</div>
         <div class="generating-sub" style="margin-bottom:24px">${newPlan.weeks.length} Wochen · automatisch aktiviert</div>
-        <button style="padding:12px 28px;background:var(--accent);border:none;border-radius:12px;color:#fff;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer" onclick="showScreen('tracker')">Zum Plan</button>
+        <button style="padding:12px 28px;background:var(--accent);border:none;border-radius:12px;color:var(--on-accent);font-family:inherit;font-size:15px;font-weight:600;cursor:pointer" onclick="showScreen('tracker')">Zum Plan</button>
       </div>`;
 
   } catch(e) {
@@ -3118,6 +3306,7 @@ if ('serviceWorker' in navigator) {
 // ─── Init ─────────────────────────────────────────────────────────────────
 load();
 ensurePlanDefaults();
+if (state.theme === 'all41') state.theme = 'pacer';
 applyTheme(state.theme || 'dunkel');
 // Tab-Icons
 document.getElementById('tab-icon-tracker').innerHTML = icon('activity', 22);
