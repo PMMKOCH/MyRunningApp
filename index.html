@@ -106,9 +106,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .progress-sub{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--muted)}
 
 /* Week tabs */
-.week-scroll{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 2px}
+.week-scroll{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:0 16px 2px;-webkit-overflow-scrolling:touch}
 .week-scroll::-webkit-scrollbar{display:none}
-.week-tab{flex:1 1 auto;min-width:54px;padding:6px 10px;border-radius:20px;font-size:13px;font-weight:500;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all 0.15s;position:relative;text-align:center;white-space:nowrap}
+.week-tab{flex:1 1 auto;min-width:54px;max-width:140px;padding:6px 10px;border-radius:20px;font-size:13px;font-weight:500;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all 0.15s;position:relative;text-align:center;white-space:nowrap}
 .week-tab.active{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .week-tab.complete{border-color:var(--green);color:var(--green)}
 .wk-dot{width:5px;height:5px;border-radius:50%;background:var(--green);position:absolute;top:3px;right:3px}
@@ -160,20 +160,42 @@ body[data-theme="all41"] .coach{background:linear-gradient(135deg,rgba(82,13,145
 .wsm-num{font-size:20px;font-weight:600;font-family:'DM Mono',monospace}
 .wsm-label{font-size:10px;color:var(--muted);margin-top:2px}
 
+/* Stats Strip */
+.stats-strip{display:flex;gap:8px;padding:0 16px 14px}
+.stat-card{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:11px 12px;display:flex;flex-direction:column;gap:4px;align-items:flex-start;min-width:0}
+.stat-icon{color:var(--accent);display:flex;align-items:center}
+.stat-val{font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:var(--text);line-height:1;white-space:nowrap}
+.stat-val .stat-unit{font-size:12px;font-weight:500;color:var(--muted);margin-left:2px}
+.stat-lbl{font-size:9px;font-weight:700;color:var(--faint);letter-spacing:0.1em;text-transform:uppercase;line-height:1.2}
+
 /* Day cards */
-.days{padding:0 16px;display:flex;flex-direction:column;gap:8px;padding-bottom:8px}
-.day-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color 0.2s,background 0.2s}
-.day-card.done{background:rgba(62,207,142,0.07);border-color:rgba(62,207,142,0.25)}
-.day-card.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
-.day-card.today .day-title::before{content:'HEUTE';font-family:'DM Mono',monospace;font-size:9px;font-weight:600;color:var(--accent);background:rgba(79,142,247,0.15);padding:2px 6px;border-radius:4px;margin-right:6px;letter-spacing:0.05em;vertical-align:1px}
-.day-card.missed{border-color:rgba(248,113,113,0.45);background:rgba(248,113,113,0.05)}
-.day-card.missed .day-title::before{content:'VERPASST';font-family:'DM Mono',monospace;font-size:9px;font-weight:700;color:var(--red);background:rgba(248,113,113,0.15);padding:2px 6px;border-radius:4px;margin-right:6px;letter-spacing:0.05em;vertical-align:1px}
-.day-card.rest{opacity:0.4;pointer-events:none}
-.day-card.rest.today{opacity:0.7;pointer-events:auto}
-.day-main{padding:12px 14px;display:flex;align-items:flex-start;gap:12px;cursor:pointer}
-.check{width:28px;height:28px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;cursor:pointer;background:var(--surface2)}
+.days{padding:0 16px;display:flex;flex-direction:column;gap:10px;padding-bottom:8px}
+.day-card{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--type-color,var(--border));border-radius:14px;overflow:hidden;transition:border-color 0.2s,background 0.2s,box-shadow 0.2s,transform 0.2s}
+.day-card.t-intervall{--type-color:var(--purple)}
+.day-card.t-tempo{--type-color:var(--amber)}
+.day-card.t-easy{--type-color:var(--green)}
+.day-card.t-lang{--type-color:var(--accent)}
+.day-card.t-strides{--type-color:var(--coral)}
+.day-card.t-rest{--type-color:var(--faint)}
+.day-card.done{background:rgba(62,207,142,0.06);border-color:rgba(62,207,142,0.22)}
+.day-card.today{box-shadow:0 0 0 1px var(--accent),0 8px 24px var(--accent-soft);border-color:var(--accent);transform:translateY(-1px)}
+.day-card.today .day-main{background:linear-gradient(135deg,var(--accent-soft),transparent 70%)}
+.day-card.today .day-title{font-size:18px}
+.day-card.missed{border-color:rgba(248,113,113,0.4);background:rgba(248,113,113,0.04)}
+.day-card.rest{opacity:0.45;pointer-events:none}
+.day-card.rest.today{opacity:0.75;pointer-events:auto}
+.day-main{padding:14px 16px;display:flex;align-items:flex-start;gap:12px;cursor:pointer}
+.check{width:28px;height:28px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;cursor:pointer;background:var(--surface2)}
 .check:hover{border-color:var(--green);background:rgba(62,207,142,0.08)}
 .check:active{transform:scale(0.92)}
+.day-meta{display:flex;align-items:center;gap:7px;margin-bottom:6px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted)}
+.day-meta-icon{color:var(--type-color,var(--muted));display:flex;align-items:center}
+.day-meta-sep{color:var(--faint);font-weight:400}
+.day-meta-type{color:var(--type-color,var(--muted))}
+.day-meta-status{margin-left:auto;font-size:9px;font-weight:700;letter-spacing:0.06em;padding:2px 7px;border-radius:5px}
+.day-meta-status.s-today{color:var(--on-accent);background:var(--accent)}
+.day-meta-status.s-missed{color:#fff;background:var(--red)}
+.day-meta-status.s-done{color:var(--green);background:rgba(62,207,142,0.15)}
 .done .check{background:var(--green);border-color:var(--green)}
 .check-icon{display:none}
 .done .check-icon{display:block}
@@ -490,7 +512,11 @@ const ICONS = {
   zap:       '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
   coffee:    '<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>',
   trendingUp:'<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>',
-  alertTriangle:'<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'
+  alertTriangle:'<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+  wind:      '<path d="M9.59 4.59A2 2 0 1 1 11 8H2"/><path d="M17.73 2.27A2.5 2.5 0 1 1 19.5 6.5H2"/><path d="M14.83 21.41A2 2 0 1 0 16.24 18H2"/>',
+  mountain:  '<path d="m8 3 4 8 5-5 5 15H2L8 3z"/>',
+  moon:      '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+  calendar:  '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'
 };
 function icon(name, size = 18, opts = {}) {
   const path = ICONS[name];
@@ -502,7 +528,7 @@ function icon(name, size = 18, opts = {}) {
 }
 
 // ─── Build-Version (manuell hochzählen bei Code-Push) ────────────────────
-const APP_VERSION = '2026-05-10-brand-themes';
+const APP_VERSION = '2026-05-10-stats-cards';
 
 // ─── State ───────────────────────────────────────────────────────────────
 let state = {
@@ -751,6 +777,49 @@ function badgeClass(t) {
 }
 function badgeLabel(t) {
   return {intervall:'Intervall',tempo:'Tempo',easy:'Locker',lang:'Langer Lauf',rest:'Ruhetag'}[t]||t;
+}
+const TYPE_ICON = { intervall:'zap', tempo:'flame', easy:'wind', lang:'mountain', strides:'activity', rest:'moon' };
+
+// Trainings-Stats für den Stats-Strip im Tracker
+function calcPlanStats(plan) {
+  if (!plan?.weeks?.length) return { streak:0, wkDone:0, wkTotal:0, daysToEnd:null };
+  const today = new Date(); today.setHours(0,0,0,0);
+  // Streak = abgeschlossene Trainings in Folge bis heute (verpasst bricht, future zählt nicht)
+  let streak = 0;
+  plan.weeks.forEach((w, wi) => {
+    let nri = 0;
+    w.days.forEach(d => {
+      if (d.type === 'rest') return;
+      const idx = nri++;
+      const dDate = dayDate(plan, wi, d.tag);
+      if (!dDate) return;
+      if (dDate > today) return; // Zukunft
+      const key = `${plan.id}-${wi}-${idx}`;
+      if (state.done[key]) streak++;
+      else if (dDate < today) streak = 0; // verpasst → Reset
+    });
+  });
+  // Aktuelle Woche
+  const wIdx = state.currentWeek?.[plan.id] ?? 0;
+  const wk = plan.weeks[wIdx];
+  let wkDone = 0, wkTotal = 0;
+  if (wk) {
+    let nri = 0;
+    wk.days.forEach(d => {
+      if (d.type === 'rest') return;
+      const idx = nri++;
+      wkTotal++;
+      if (state.done[`${plan.id}-${wIdx}-${idx}`]) wkDone++;
+    });
+  }
+  // Bis Plan-Ende
+  const pe = planEnd(plan);
+  let daysToEnd = null;
+  if (pe) {
+    const peMid = new Date(pe.getFullYear(), pe.getMonth(), pe.getDate());
+    daysToEnd = Math.max(0, Math.ceil((peMid - today) / 86400000));
+  }
+  return { streak, wkDone, wkTotal, daysToEnd };
 }
 function todayTag() {
   return ['So','Mo','Di','Mi','Do','Fr','Sa'][new Date().getDay()];
@@ -2080,12 +2149,17 @@ function renderTracker() {
     const dDate = dayDate(plan, wIdx, d.tag);
     const dDateStr = dDate ? fmtShort(dDate) : '';
     const isToday = dDate ? isSameDate(dDate, todayDate) : (d.tag === today);
+    const typeIco = TYPE_ICON[d.type] || 'activity';
     if (d.type === 'rest') return `
-      <div class="day-card rest ${isToday?'today':''}">
+      <div class="day-card t-rest rest ${isToday?'today':''}">
         <div class="day-main">
-          <div class="check" style="border-color:var(--faint)">—</div>
+          <div class="check" style="border-color:var(--faint)">${icon('moon',14,{style:'color:var(--faint)'})}</div>
           <div class="day-body">
-            <div class="badge-row"><span class="badge b-rest">${d.tag}${dDateStr?' · '+dDateStr:''}</span></div>
+            <div class="day-meta">
+              <span class="day-meta-icon">${icon(typeIco,13)}</span>
+              <span>${d.tag}</span>${dDateStr?`<span class="day-meta-sep">·</span><span>${dDateStr}</span>`:''}
+              <span class="day-meta-sep">·</span><span class="day-meta-type">Ruhe</span>
+            </div>
             <div class="day-title">${d.title}</div>
           </div>
         </div>
@@ -2117,8 +2191,15 @@ function renderTracker() {
       </div>` : '';
 
     const isMissed = !isDone && !isToday && dDate && (dDate < new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate()));
+    const statusBadge = isToday
+      ? `<span class="day-meta-status s-today">Heute</span>`
+      : isMissed
+        ? `<span class="day-meta-status s-missed">Verpasst</span>`
+        : isDone
+          ? `<span class="day-meta-status s-done">Erledigt</span>`
+          : '';
     return `
-      <div class="day-card ${isDone?'done':''} ${isToday?'today':''} ${isMissed?'missed':''}">
+      <div class="day-card t-${d.type} ${isDone?'done':''} ${isToday?'today':''} ${isMissed?'missed':''}">
         <div class="day-main" onclick="openDayDetail('${plan.id}',${wIdx},${idx})">
           <div class="check" onclick="event.stopPropagation();toggleDone('${plan.id}',${wIdx},${idx})" title="Erledigt abhaken">
             <svg class="check-icon" width="14" height="11" viewBox="0 0 12 9" fill="none">
@@ -2126,7 +2207,12 @@ function renderTracker() {
             </svg>
           </div>
           <div class="day-body">
-            <div class="badge-row"><span class="badge ${badgeClass(d.type)}">${d.tag}${dDateStr?' · '+dDateStr:''} · ${badgeLabel(d.type)}</span></div>
+            <div class="day-meta">
+              <span class="day-meta-icon">${icon(typeIco,14)}</span>
+              <span>${d.tag}</span>${dDateStr?`<span class="day-meta-sep">·</span><span>${dDateStr}</span>`:''}
+              <span class="day-meta-sep">·</span><span class="day-meta-type">${badgeLabel(d.type)}</span>
+              ${statusBadge}
+            </div>
             <div class="day-title">${d.title}</div>
             ${paces}${langBlock}${fbBlock}
           </div>
@@ -2158,6 +2244,29 @@ function renderTracker() {
       </div>
       <div class="week-scroll">${weekTabs}</div>
     </div>
+    ${(() => {
+      const s = calcPlanStats(plan);
+      const daysVal = s.daysToEnd === null ? '–' : s.daysToEnd;
+      const daysUnit = s.daysToEnd === null ? '' : (s.daysToEnd === 1 ? ' Tag' : ' Tage');
+      return `
+      <div class="stats-strip">
+        <div class="stat-card">
+          <div class="stat-icon">${icon('flame',16)}</div>
+          <div class="stat-val">${s.streak}<span class="stat-unit">${s.streak===1?' Training':' Trainings'}</span></div>
+          <div class="stat-lbl">Streak</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">${icon('trendingUp',16)}</div>
+          <div class="stat-val">${s.wkDone}<span class="stat-unit">/${s.wkTotal}</span></div>
+          <div class="stat-lbl">Diese Woche</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">${icon('target',16)}</div>
+          <div class="stat-val">${daysVal}<span class="stat-unit">${daysUnit}</span></div>
+          <div class="stat-lbl">Bis Ziel</div>
+        </div>
+      </div>`;
+    })()}
     ${(() => {
       const tt = targetTime(plan);
       const goalLine = tt
